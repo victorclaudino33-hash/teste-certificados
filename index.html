@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ability Pro | Certificação</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+ 
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore, doc, getDoc, setDoc, collection,
+      getDocs, deleteDoc, onSnapshot
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import {
+      getStorage, ref, uploadString, getDownloadURL, deleteObject
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+ 
+    // ════════════════════════════════════════
+    // 🔥 CONFIGURE SEU FIREBASE AQUI
+    // Substitua com as credenciais do seu projeto Firebase
+    // ════════════════════════════════════════
+    const firebaseConfig = {
+      apiKey:            "SUA_API_KEY",
+      authDomain:        "SEU_PROJETO.firebaseapp.com",
+      projectId:         "SEU_PROJETO",
+      storageBucket:     "SEU_PROJETO.appspot.com",
+      messagingSenderId: "SEU_SENDER_ID",
+      appId:             "SEU_APP_ID"
+    };
+ 
+    const app     = initializeApp(firebaseConfig);
+    const auth    = getAuth(app);
+    const db      = getFirestore(app);
+    const storage = getStorage(app);
+ 
+    // Expor para app.js
+    window.__FB = { auth, db, storage, signInWithEmailAndPassword, signOut,
+      onAuthStateChanged, doc, getDoc, setDoc, collection, getDocs,
+      deleteDoc, onSnapshot, ref, uploadString, getDownloadURL, deleteObject };
+  </script>
+</head>
+<body>
+ 
+  <!-- ═══════════════════════════════════════════
+       LOGIN
+  ═══════════════════════════════════════════ -->
+  <section id="loginSection">
+    <div class="login-bg-glow"></div>
+    <div class="login-card">
+      <div class="login-logo">Ability<span class="accent">.</span></div>
+      <div class="login-tagline">Sistema de Certificação</div>
+ 
+      <!-- Tabs: Local / Firebase -->
+      <div class="login-tabs">
+        <button class="ltab active" id="tabLocal" onclick="switchLoginTab('local')">Login Local</button>
+        <button class="ltab" id="tabFirebase" onclick="switchLoginTab('firebase')">☁ Firebase</button>
+      </div>
+ 
+      <!-- Login LOCAL -->
+      <div id="loginLocal" class="login-fields">
+        <div class="field-wrap">
+          <label class="field-label">Usuário</label>
+          <input type="text" id="userInput" class="field" placeholder="Digite seu usuário" autocomplete="username">
+        </div>
+        <div class="field-wrap">
+          <label class="field-label">Senha</label>
+          <input type="password" id="passInput" class="field" placeholder="••••••••" autocomplete="current-password"
+            onkeydown="if(event.key==='Enter') validarLogin()">
+        </div>
+        <button class="login-btn" onclick="validarLogin()">
+          <span>Entrar no painel</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+ 
+      <!-- Login FIREBASE -->
+      <div id="loginFirebase" class="login-fields hidden">
+        <div class="field-wrap">
+          <label class="field-label">E-mail</label>
+          <input type="email" id="fbEmail" class="field" placeholder="email@empresa.com" autocomplete="email">
+        </div>
+        <div class="field-wrap">
+          <label class="field-label">Senha</label>
+          <input type="password" id="fbPass" class="field" placeholder="••••••••"
+            onkeydown="if(event.key==='Enter') validarLoginFirebase()">
+        </div>
+        <button class="login-btn" onclick="validarLoginFirebase()">
+          <span>Entrar com Firebase</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+        <div class="fb-hint">Use a conta criada no Firebase Console.<br>Configuração em <code>index.html → firebaseConfig</code></div>
+      </div>
+ 
+      <div class="login-footer">Ability Pro v3.0 — Sistema interno</div>
+    </div>
+  </section>
+ 
+  <!-- ═══════════════════════════════════════════
+       APP
+  ═══════════════════════════════════════════ -->
+  <div id="mainInterface" class="hidden">
+ 
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-brand">
+        <div class="topbar-logo">Ability<span class="accent">Pro</span></div>
+        <div class="topbar-divider"></div>
+        <div id="userBadge" class="badge badge-neutral">OP: ---</div>
+        <div id="syncBadge" class="badge badge-blue hidden" title="Sincronizado com Firebase">☁ Sync</div>
+      </div>
+      <div class="topbar-actions">
+        <button id="adminBtn" class="badge badge-blue hidden" onclick="toggleAdmin()">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg>
+          Gerenciar equipe
+        </button>
+        <button class="btn-exit" onclick="fazerLogout()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          Sair
+        </button>
+      </div>
+    </header>
+ 
+    <!-- ADMIN PANEL -->
+    <div id="adminPanel" class="admin-panel hidden">
+      <div class="admin-inner">
+        <div class="admin-left">
+          <div class="admin-title">Administração de acessos</div>
+          <div class="admin-sub">Gerencie contas de colaboradores</div>
+        </div>
+        <div class="admin-form">
+          <input type="text" id="newUserName" class="admin-input" placeholder="Nome do colaborador">
+          <input type="text" id="newUserPass" class="admin-input" placeholder="Senha">
+          <button class="btn-green" onclick="adicionarColaborador()">+ Adicionar</button>
+        </div>
+      </div>
+      <div id="listaEquipe" class="team-grid"></div>
+    </div>
+ 
+    <!-- BODY -->
+    <div class="app-body">
+ 
+      <!-- ─── SIDEBAR ─── -->
+      <aside class="sidebar">
+ 
+        <!-- Cursos -->
+        <div class="sb-block">
+          <div class="sb-label">Treinamento ativo</div>
+          <div id="slotContainer" class="course-grid"></div>
+        </div>
+ 
+        <!-- PDFs -->
+        <div class="sb-block">
+          <div class="sb-label">Modelo do certificado</div>
+          <div class="pdf-list">
+ 
+            <div class="pdf-item" onclick="document.getElementById('frentePDF').click()" role="button">
+              <div class="pdf-icon-wrap">
+                <svg width="12" height="14" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v20a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              </div>
+              <div class="pdf-info">
+                <div class="pdf-name">Frente</div>
+                <div class="pdf-sub" id="labelFrente">Clique para carregar</div>
+              </div>
+              <div class="pdf-dot" id="dotFrente"></div>
+            </div>
+ 
+            <div class="pdf-item" onclick="document.getElementById('versoPDF').click()" role="button">
+              <div class="pdf-icon-wrap">
+                <svg width="12" height="14" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v20a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              </div>
+              <div class="pdf-info">
+                <div class="pdf-name">Verso</div>
+                <div class="pdf-sub" id="labelVerso">Clique para carregar</div>
+              </div>
+              <div class="pdf-dot" id="dotVerso"></div>
+            </div>
+ 
+          </div>
+          <input type="file" id="frentePDF" accept=".pdf" onchange="processarPDF(this,'frente')">
+          <input type="file" id="versoPDF"  accept=".pdf" onchange="processarPDF(this,'verso')">
+        </div>
+ 
+        <!-- Cor do texto -->
+        <div class="sb-block">
+          <div class="sb-label">Cor do texto</div>
+          <div class="color-row">
+            <div class="color-swatch active" data-color="#000000" style="background:#000000" onclick="selecionarCor(this)" title="Preto"></div>
+            <div class="color-swatch" data-color="#ffffff" style="background:#ffffff" onclick="selecionarCor(this)" title="Branco"></div>
+            <div class="color-swatch" data-color="#1e3a8a" style="background:#1e3a8a" onclick="selecionarCor(this)" title="Azul escuro"></div>
+            <div class="color-swatch" data-color="#7c3aed" style="background:#7c3aed" onclick="selecionarCor(this)" title="Roxo"></div>
+            <div class="color-swatch" data-color="#b45309" style="background:#b45309" onclick="selecionarCor(this)" title="Dourado"></div>
+            <input type="color" id="corPersonalizada" value="#000000" title="Cor personalizada"
+              oninput="corTexto=this.value; ajusteReal()"
+              style="width:28px;height:28px;border-radius:6px;border:1px solid var(--border2);background:var(--surface3);cursor:pointer;padding:2px;">
+          </div>
+        </div>
+ 
+        <!-- Sliders -->
+        <div class="sb-block sb-flex">
+          <div class="sb-label">Posicionamento do texto</div>
+          <div class="sl-list">
+ 
+            <!-- Nome — full width -->
+            <div class="sl-card">
+              <div class="sl-header">
+                <span class="sl-field-name">Nome</span>
+                <div class="sl-chips">
+                  <span class="sl-chip" id="chip_y_nome">105mm</span>
+                  <span class="sl-chip" id="chip_s_nome">26pt</span>
+                </div>
+              </div>
+              <div class="sl-sub">Posição vertical</div>
+              <input type="range" id="range_y_nome" min="0" max="210" value="105" oninput="ajusteReal()">
+              <div class="sl-sub" style="margin-top:8px">Tamanho da fonte</div>
+              <input type="range" id="range_s_nome" min="10" max="80" value="26" oninput="ajusteReal()">
+            </div>
+ 
+            <!-- CPF + Data — 2 colunas -->
+            <div class="sl-two-col">
+ 
+              <div class="sl-card">
+                <div class="sl-header">
+                  <span class="sl-field-name">CPF</span>
+                  <span class="sl-chip" id="chip_y_cpf">125mm</span>
+                </div>
+                <div class="sl-sub">Posição</div>
+                <input type="range" id="range_y_cpf" min="0" max="210" value="125" oninput="ajusteReal()">
+                <div class="sl-sub" style="margin-top:8px">Tamanho</div>
+                <input type="range" id="range_s_cpf" min="8" max="40" value="14" oninput="ajusteReal()">
+                <span class="sl-chip" id="chip_s_cpf" style="margin-top:6px;display:inline-block">14pt</span>
+              </div>
+ 
+              <div class="sl-card">
+                <div class="sl-header">
+                  <span class="sl-field-name">Data</span>
+                  <span class="sl-chip" id="chip_y_data">145mm</span>
+                </div>
+                <div class="sl-sub">Posição</div>
+                <input type="range" id="range_y_data" min="0" max="210" value="145" oninput="ajusteReal()">
+                <div class="sl-sub" style="margin-top:8px">Tamanho</div>
+                <input type="range" id="range_s_data" min="8" max="30" value="12" oninput="ajusteReal()">
+                <span class="sl-chip" id="chip_s_data" style="margin-top:6px;display:inline-block">12pt</span>
+              </div>
+ 
+            </div>
+          </div>
+        </div>
+ 
+      </aside>
+ 
+      <!-- ─── MAIN ─── -->
+      <main class="main-content">
+ 
+        <!-- Toolbar -->
+        <div class="main-toolbar">
+          <div class="stat-chips">
+            <div class="stat-chip">
+              <div class="stat-num" id="statAlunos">0</div>
+              <div class="stat-lbl">alunos</div>
+            </div>
+            <div class="stat-chip">
+              <div class="stat-num" id="statPaginas">0</div>
+              <div class="stat-lbl">páginas</div>
+            </div>
+            <div class="stat-status" id="statStatus">Nenhuma planilha carregada</div>
+          </div>
+ 
+          <div class="tb-spacer"></div>
+ 
+          <!-- Navegação entre alunos -->
+          <div class="nav-group">
+            <button class="nav-btn" id="btnPrev" onclick="navegarAluno(-1)" disabled>←</button>
+            <span class="nav-count" id="navCount">— / —</span>
+            <button class="nav-btn" id="btnNext" onclick="navegarAluno(1)" disabled>→</button>
+          </div>
+ 
+          <button class="tb-btn tb-green" onclick="document.getElementById('excelInput').click()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            Carregar Excel
+          </button>
+          <input type="file" id="excelInput" accept=".xlsx,.xls,.csv">
+ 
+          <!-- Botão exportar aluno único -->
+          <button class="tb-btn tb-blue" id="btnUnico" onclick="gerarUnico()" title="Exportar somente o aluno atual">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 15V3m0 12l-4-4m4 4l4-4"/><path d="M2 17l.621 2.485A2 2 0 0 0 4.561 21h14.878a2 2 0 0 0 1.94-1.515L22 17"/></svg>
+            Exportar atual
+          </button>
+        </div>
+ 
+        <!-- Tabela de alunos carregados -->
+        <div id="tabelaWrap" class="tabela-wrap hidden">
+          <div class="tabela-header">
+            <span class="tabela-title" id="tabelaTitle">Alunos carregados</span>
+            <input type="text" id="buscaAluno" class="tabela-search" placeholder="🔍 Buscar aluno..." oninput="filtrarTabela()">
+            <button class="tabela-close" onclick="toggleTabela()">✕</button>
+          </div>
+          <div class="tabela-body" id="tabelaBody"></div>
+        </div>
+ 
+        <!-- Preview -->
+        <div class="preview-area">
+          <div class="cert-frame" id="certFrame">
+            <div class="placeholder" id="placeholder">
+              <div class="placeholder-logo">ABILITY</div>
+              <div class="placeholder-sub">Preview do certificado</div>
+              <div class="placeholder-hint">Carregue um PDF de frente para visualizar</div>
+            </div>
+            <canvas id="previewCanvas"></canvas>
+          </div>
+ 
+          <!-- Bottom -->
+          <div class="bottom-row">
+            <div class="progress-block">
+              <div class="prog-header">
+                <span class="prog-label">Progresso da geração</span>
+                <span class="prog-pct" id="progPct">0%</span>
+              </div>
+              <div class="prog-track">
+                <div class="prog-fill" id="progFill"></div>
+              </div>
+              <div class="prog-sub" id="progSub">Aguardando geração...</div>
+            </div>
+ 
+            <div style="display:flex;gap:8px;align-items:center;">
+              <!-- Toggle tabela -->
+              <button class="tb-btn tb-neutral" onclick="toggleTabela()" id="btnVerTabela" title="Ver lista de alunos">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+                Lista
+              </button>
+ 
+              <button class="gen-btn" id="genBtn" onclick="gerarLoteCompleto()">
+                Gerar lote PDF
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+ 
+      </main>
+    </div>
+  </div>
+ 
+  <!-- Toast container -->
+  <div id="toastContainer"></div>
+ 
+  <script src="app.js"></script>
+</body>
+</html>
