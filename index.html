@@ -3,14 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ability Pro | Certificação</title>
+  <title>Ability Pro | Certificação v4.0</title>
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
- 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
   <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -19,15 +21,14 @@
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import {
       getFirestore, doc, getDoc, setDoc, collection,
-      getDocs, deleteDoc, onSnapshot
+      getDocs, deleteDoc, onSnapshot, addDoc, query, orderBy, limit, where, serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     import {
-      getStorage, ref, uploadString, getDownloadURL, deleteObject
+      getStorage, ref, uploadString, getDownloadURL, deleteObject, uploadBytes
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
- 
+
     // ════════════════════════════════════════
     // 🔥 CONFIGURE SEU FIREBASE AQUI
-    // Substitua com as credenciais do seu projeto Firebase
     // ════════════════════════════════════════
     const firebaseConfig = {
       apiKey:            "IzaSyBzUJOntKwQIqYONKYK_yZGDOn3LHMx9Rg",
@@ -37,20 +38,23 @@
       messagingSenderId: "778706007723",
       appId:             "1:778706007723:web:dd3ddf6e8b2351d49e29ee"
     };
- 
+
     const app     = initializeApp(firebaseConfig);
     const auth    = getAuth(app);
     const db      = getFirestore(app);
     const storage = getStorage(app);
- 
-    // Expor para app.js
-    window.__FB = { auth, db, storage, signInWithEmailAndPassword, signOut,
-      onAuthStateChanged, doc, getDoc, setDoc, collection, getDocs,
-      deleteDoc, onSnapshot, ref, uploadString, getDownloadURL, deleteObject };
+
+    window.__FB = {
+      auth, db, storage,
+      signInWithEmailAndPassword, signOut, onAuthStateChanged,
+      doc, getDoc, setDoc, collection, getDocs, deleteDoc, onSnapshot,
+      addDoc, query, orderBy, limit, where, serverTimestamp,
+      ref, uploadString, getDownloadURL, deleteObject, uploadBytes
+    };
   </script>
 </head>
 <body>
- 
+
   <!-- ═══════════════════════════════════════════
        LOGIN
   ═══════════════════════════════════════════ -->
@@ -58,15 +62,13 @@
     <div class="login-bg-glow"></div>
     <div class="login-card">
       <div class="login-logo">Ability<span class="accent">.</span></div>
-      <div class="login-tagline">Sistema de Certificação</div>
- 
-      <!-- Tabs: Local / Firebase -->
+      <div class="login-tagline">Sistema de Certificação v4.0</div>
+
       <div class="login-tabs">
         <button class="ltab active" id="tabLocal" onclick="switchLoginTab('local')">Login Local</button>
         <button class="ltab" id="tabFirebase" onclick="switchLoginTab('firebase')">☁ Firebase</button>
       </div>
- 
-      <!-- Login LOCAL -->
+
       <div id="loginLocal" class="login-fields">
         <div class="field-wrap">
           <label class="field-label">Usuário</label>
@@ -82,8 +84,7 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </button>
       </div>
- 
-      <!-- Login FIREBASE -->
+
       <div id="loginFirebase" class="login-fields hidden">
         <div class="field-wrap">
           <label class="field-label">E-mail</label>
@@ -100,16 +101,16 @@
         </button>
         <div class="fb-hint">Use a conta criada no Firebase Console.<br>Configuração em <code>index.html → firebaseConfig</code></div>
       </div>
- 
-      <div class="login-footer">Ability Pro v3.0 — Sistema interno</div>
+
+      <div class="login-footer">Ability Pro v4.0 — Sistema interno</div>
     </div>
   </section>
- 
+
   <!-- ═══════════════════════════════════════════
        APP
   ═══════════════════════════════════════════ -->
   <div id="mainInterface" class="hidden">
- 
+
     <!-- TOPBAR -->
     <header class="topbar">
       <div class="topbar-brand">
@@ -119,6 +120,14 @@
         <div id="syncBadge" class="badge badge-blue hidden" title="Sincronizado com Firebase">☁ Sync</div>
       </div>
       <div class="topbar-actions">
+        <button class="badge badge-blue" onclick="toggleAba('historico')" id="btnHistorico" style="display:none">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Histórico
+        </button>
+        <button class="badge badge-blue" onclick="toggleAba('dashboard')" id="btnDashboard" style="display:none">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Dashboard
+        </button>
         <button id="adminBtn" class="badge badge-blue hidden" onclick="toggleAdmin()">
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg>
           Gerenciar equipe
@@ -129,7 +138,7 @@
         </button>
       </div>
     </header>
- 
+
     <!-- ADMIN PANEL -->
     <div id="adminPanel" class="admin-panel hidden">
       <div class="admin-inner">
@@ -145,24 +154,23 @@
       </div>
       <div id="listaEquipe" class="team-grid"></div>
     </div>
- 
-    <!-- BODY -->
-    <div class="app-body">
- 
+
+    <!-- BODY (abas) -->
+    <div class="app-body" id="abaGeracao">
+
       <!-- ─── SIDEBAR ─── -->
       <aside class="sidebar">
- 
+
         <!-- Cursos -->
         <div class="sb-block">
           <div class="sb-label">Treinamento ativo</div>
           <div id="slotContainer" class="course-grid"></div>
         </div>
- 
+
         <!-- PDFs -->
         <div class="sb-block">
           <div class="sb-label">Modelo do certificado</div>
           <div class="pdf-list">
- 
             <div class="pdf-item" onclick="document.getElementById('frentePDF').click()" role="button">
               <div class="pdf-icon-wrap">
                 <svg width="12" height="14" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v20a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -173,7 +181,8 @@
               </div>
               <div class="pdf-dot" id="dotFrente"></div>
             </div>
- 
+            <input type="file" id="frentePDF" accept=".pdf" onchange="processarPDF(this,'frente')">
+
             <div class="pdf-item" onclick="document.getElementById('versoPDF').click()" role="button">
               <div class="pdf-icon-wrap">
                 <svg width="12" height="14" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v20a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -184,12 +193,25 @@
               </div>
               <div class="pdf-dot" id="dotVerso"></div>
             </div>
- 
+            <input type="file" id="versoPDF" accept=".pdf" onchange="processarPDF(this,'verso')">
           </div>
-          <input type="file" id="frentePDF" accept=".pdf" onchange="processarPDF(this,'frente')">
-          <input type="file" id="versoPDF"  accept=".pdf" onchange="processarPDF(this,'verso')">
         </div>
- 
+
+        <!-- Assinaturas dinâmicas -->
+        <div class="sb-block">
+          <div class="sb-label">Assinatura do instrutor</div>
+          <div id="assinaturaInfo" class="assinatura-info">
+            <div class="assin-nome" id="assinNome">Sem assinatura</div>
+            <div class="assin-cargo" id="assinCargo">Configure no painel admin</div>
+          </div>
+          <div style="display:flex;gap:6px;margin-top:8px">
+            <button class="tb-btn tb-blue" style="flex:1;font-size:9px;padding:6px 8px" onclick="toggleAssinaturas()">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Gerenciar
+            </button>
+          </div>
+        </div>
+
         <!-- Cor do texto -->
         <div class="sb-block">
           <div class="sb-label">Cor do texto</div>
@@ -204,13 +226,12 @@
               style="width:28px;height:28px;border-radius:6px;border:1px solid var(--border2);background:var(--surface3);cursor:pointer;padding:2px;">
           </div>
         </div>
- 
+
         <!-- Sliders -->
         <div class="sb-block sb-flex">
           <div class="sb-label">Posicionamento do texto</div>
           <div class="sl-list">
- 
-            <!-- Nome — full width -->
+
             <div class="sl-card">
               <div class="sl-header">
                 <span class="sl-field-name">Nome</span>
@@ -224,10 +245,8 @@
               <div class="sl-sub" style="margin-top:8px">Tamanho da fonte</div>
               <input type="range" id="range_s_nome" min="10" max="80" value="26" oninput="ajusteReal()">
             </div>
- 
-            <!-- CPF + Data — 2 colunas -->
+
             <div class="sl-two-col">
- 
               <div class="sl-card">
                 <div class="sl-header">
                   <span class="sl-field-name">CPF</span>
@@ -239,7 +258,7 @@
                 <input type="range" id="range_s_cpf" min="8" max="40" value="14" oninput="ajusteReal()">
                 <span class="sl-chip" id="chip_s_cpf" style="margin-top:6px;display:inline-block">14pt</span>
               </div>
- 
+
               <div class="sl-card">
                 <div class="sl-header">
                   <span class="sl-field-name">Data</span>
@@ -251,16 +270,40 @@
                 <input type="range" id="range_s_data" min="8" max="30" value="12" oninput="ajusteReal()">
                 <span class="sl-chip" id="chip_s_data" style="margin-top:6px;display:inline-block">12pt</span>
               </div>
- 
             </div>
+
+            <!-- QR Code posicionamento -->
+            <div class="sl-card">
+              <div class="sl-header">
+                <span class="sl-field-name">QR Code</span>
+                <div class="sl-chips">
+                  <span class="sl-chip" id="chip_x_qr">252mm</span>
+                  <span class="sl-chip" id="chip_y_qr">180mm</span>
+                  <span class="sl-chip" id="chip_s_qr">30mm</span>
+                </div>
+              </div>
+              <div class="sl-sub">Posição X</div>
+              <input type="range" id="range_x_qr" min="0" max="297" value="252" oninput="ajusteReal()">
+              <div class="sl-sub" style="margin-top:6px">Posição Y</div>
+              <input type="range" id="range_y_qr" min="0" max="210" value="180" oninput="ajusteReal()">
+              <div class="sl-sub" style="margin-top:6px">Tamanho</div>
+              <input type="range" id="range_s_qr" min="15" max="60" value="30" oninput="ajusteReal()">
+              <div style="display:flex;align-items:center;gap:7px;margin-top:8px">
+                <label class="sl-sub" style="margin:0;cursor:pointer">
+                  <input type="checkbox" id="enableQR" checked onchange="ajusteReal()" style="display:inline;width:auto;margin-right:4px">
+                  Gerar QR de validação
+                </label>
+              </div>
+            </div>
+
           </div>
         </div>
- 
+
       </aside>
- 
-      <!-- ─── MAIN ─── -->
+
+      <!-- ─── MAIN GERAÇÃO ─── -->
       <main class="main-content">
- 
+
         <!-- Toolbar -->
         <div class="main-toolbar">
           <div class="stat-chips">
@@ -274,30 +317,28 @@
             </div>
             <div class="stat-status" id="statStatus">Nenhuma planilha carregada</div>
           </div>
- 
+
           <div class="tb-spacer"></div>
- 
-          <!-- Navegação entre alunos -->
+
           <div class="nav-group">
             <button class="nav-btn" id="btnPrev" onclick="navegarAluno(-1)" disabled>←</button>
             <span class="nav-count" id="navCount">— / —</span>
             <button class="nav-btn" id="btnNext" onclick="navegarAluno(1)" disabled>→</button>
           </div>
- 
+
           <button class="tb-btn tb-green" onclick="document.getElementById('excelInput').click()">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
             Carregar Excel
           </button>
           <input type="file" id="excelInput" accept=".xlsx,.xls,.csv">
- 
-          <!-- Botão exportar aluno único -->
+
           <button class="tb-btn tb-blue" id="btnUnico" onclick="gerarUnico()" title="Exportar somente o aluno atual">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 15V3m0 12l-4-4m4 4l4-4"/><path d="M2 17l.621 2.485A2 2 0 0 0 4.561 21h14.878a2 2 0 0 0 1.94-1.515L22 17"/></svg>
             Exportar atual
           </button>
         </div>
- 
-        <!-- Tabela de alunos carregados -->
+
+        <!-- Tabela de alunos -->
         <div id="tabelaWrap" class="tabela-wrap hidden">
           <div class="tabela-header">
             <span class="tabela-title" id="tabelaTitle">Alunos carregados</span>
@@ -306,7 +347,7 @@
           </div>
           <div class="tabela-body" id="tabelaBody"></div>
         </div>
- 
+
         <!-- Preview -->
         <div class="preview-area">
           <div class="cert-frame" id="certFrame">
@@ -317,8 +358,7 @@
             </div>
             <canvas id="previewCanvas"></canvas>
           </div>
- 
-          <!-- Bottom -->
+
           <div class="bottom-row">
             <div class="progress-block">
               <div class="prog-header">
@@ -330,14 +370,13 @@
               </div>
               <div class="prog-sub" id="progSub">Aguardando geração...</div>
             </div>
- 
+
             <div style="display:flex;gap:8px;align-items:center;">
-              <!-- Toggle tabela -->
               <button class="tb-btn tb-neutral" onclick="toggleTabela()" id="btnVerTabela" title="Ver lista de alunos">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
                 Lista
               </button>
- 
+
               <button class="gen-btn" id="genBtn" onclick="gerarLoteCompleto()">
                 Gerar lote PDF
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -345,14 +384,121 @@
             </div>
           </div>
         </div>
- 
+
       </main>
     </div>
+
+    <!-- ─── ABA HISTÓRICO ─── -->
+    <div class="app-body hidden" id="abaHistorico" style="display:none">
+      <div style="flex:1;padding:24px;overflow-y:auto">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+          <div>
+            <div style="font-size:16px;font-weight:800;color:var(--text)">Histórico de lotes</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:3px">Auditoria completa de todas as gerações</div>
+          </div>
+          <button class="tb-btn tb-neutral" onclick="carregarHistorico()">↺ Atualizar</button>
+        </div>
+        <div id="historicoLista" style="display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:12px;color:var(--text3);text-align:center;padding:40px">
+            Conecte-se ao Firebase para ver o histórico
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── ABA DASHBOARD ─── -->
+    <div class="app-body hidden" id="abaDashboard" style="display:none">
+      <div style="flex:1;padding:24px;overflow-y:auto">
+        <div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:20px">Dashboard analítico</div>
+        <div class="dash-grid" id="dashGrid">
+          <div class="dash-card"><div class="dash-num" id="dTotal">—</div><div class="dash-lbl">Total de certificados</div></div>
+          <div class="dash-card"><div class="dash-num" id="dHoje">—</div><div class="dash-lbl">Gerados hoje</div></div>
+          <div class="dash-card"><div class="dash-num" id="dLotes">—</div><div class="dash-lbl">Lotes processados</div></div>
+          <div class="dash-card"><div class="dash-num" id="dCurso">—</div><div class="dash-lbl">Curso mais utilizado</div></div>
+        </div>
+        <div style="margin-top:20px">
+          <div style="font-size:11px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px">Últimos lotes</div>
+          <div id="dashLotes"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /mainInterface -->
+
+  <!-- ═══════════════════════════════════════════
+       MODAL — Mapeamento de colunas
+  ═══════════════════════════════════════════ -->
+  <div id="modalColMap" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-title">Mapeamento de colunas detectadas</div>
+      <div class="modal-sub">Confirme ou ajuste a correspondência das colunas</div>
+      <div id="colMapBody" style="margin:16px 0;display:flex;flex-direction:column;gap:8px"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="tb-btn tb-neutral" onclick="fecharModalColMap(false)">Cancelar</button>
+        <button class="btn-green" onclick="fecharModalColMap(true)">✓ Confirmar mapeamento</button>
+      </div>
+    </div>
   </div>
- 
+
+  <!-- ═══════════════════════════════════════════
+       MODAL — Assinaturas
+  ═══════════════════════════════════════════ -->
+  <div id="modalAssinaturas" class="modal-overlay hidden">
+    <div class="modal-card" style="max-width:520px">
+      <div class="modal-title">Gerenciar assinaturas por curso</div>
+      <div class="modal-sub">Cadastre o instrutor responsável por cada treinamento</div>
+      <div style="margin:16px 0">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+          <div>
+            <div class="field-label" style="font-size:9px;margin-bottom:4px">Curso</div>
+            <select id="assinCursoSelect" class="field" style="padding:10px 12px;font-size:11px">
+              <option value="">Selecione...</option>
+            </select>
+          </div>
+          <div>
+            <div class="field-label" style="font-size:9px;margin-bottom:4px">Nome do instrutor</div>
+            <input type="text" id="assinNomeInput" class="field" style="padding:10px 12px;font-size:11px" placeholder="Ex: Carlos Silva">
+          </div>
+          <div>
+            <div class="field-label" style="font-size:9px;margin-bottom:4px">Cargo</div>
+            <input type="text" id="assinCargoInput" class="field" style="padding:10px 12px;font-size:11px" placeholder="Ex: Eng. Eletricista">
+          </div>
+          <div>
+            <div class="field-label" style="font-size:9px;margin-bottom:4px">Registro profissional</div>
+            <input type="text" id="assinRegistroInput" class="field" style="padding:10px 12px;font-size:11px" placeholder="Ex: CREA 123456">
+          </div>
+        </div>
+        <div>
+          <div class="field-label" style="font-size:9px;margin-bottom:4px">Assinatura (PNG transparente)</div>
+          <div class="pdf-item" onclick="document.getElementById('assinPNGInput').click()" style="cursor:pointer">
+            <div class="pdf-icon-wrap">
+              <svg width="12" height="14" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v20a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <div class="pdf-info">
+              <div class="pdf-name" id="assinPNGLabel">Clique para carregar PNG</div>
+            </div>
+          </div>
+          <input type="file" id="assinPNGInput" accept="image/png,image/jpeg" onchange="carregarAssinaturaImg(this)">
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button class="btn-green" onclick="salvarAssinatura()" style="flex:1">+ Salvar instrutor</button>
+        </div>
+      </div>
+      <div style="border-top:1px solid var(--border);padding-top:12px">
+        <div style="font-size:9px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Instrutores cadastrados</div>
+        <div id="listaAssinaturas" style="display:flex;flex-direction:column;gap:6px;max-height:180px;overflow-y:auto"></div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-top:12px">
+        <button class="tb-btn tb-neutral" onclick="fecharAssinaturas()">Fechar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast container -->
   <div id="toastContainer"></div>
- 
+  <!-- QR hidden canvas -->
+  <div id="qrCanvas" style="display:none"></div>
+
   <script src="app.js"></script>
 </body>
 </html>
