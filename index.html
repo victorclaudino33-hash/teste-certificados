@@ -1,389 +1,305 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ability Pro | Certificação v4.0</title>
-  
-  <!-- Fontes -->
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
-  
-  <!-- CSS -->
-  <link rel="stylesheet" href="style.css">
-  
-  <!-- Bibliotecas Externas -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ability Pro — Certification Suite v4.0 (SSMA)</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
-  <!-- Firebase -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, query, orderBy, limit, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
-
-    // IMPORTANTE: Substitua com suas credenciais reais do Firebase
-    const firebaseConfig = {
-      ap apiKey: "AIzaSyBzUJOntKwQIqYONKYK_yZGDOn3LHMx9Rg",
-      authDomain: "certificados-211e8.firebaseapp.com",
-      projectId: "certificados-211e8",
-      storageBucket: "certificados-211e8.firebasestorage.app",
-      messagingSenderId: "778706007723",
-      appId: "1:778706007723:web:dd3ddf6e8b2351d49e29ee"
-    };
-
-    const app     = initializeApp(firebaseConfig);
-    const auth    = getAuth(app);
-    const db      = getFirestore(app);
-    const storage = getStorage(app);
-
-    window.__FB = {
-      auth, db, storage,
-      signInWithEmailAndPassword, signOut, onAuthStateChanged,
-      doc, getDoc, setDoc, collection, getDocs,
-      addDoc, query, orderBy, limit, serverTimestamp, deleteDoc,
-      ref, uploadBytes, getDownloadURL, deleteObject
-    };
-  </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Syne:wght@700;800&family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- ══════════════════════════════════════════════════════════════════ -->
-  <!-- TELA DE LOGIN -->
-  <!-- ══════════════════════════════════════════════════════════════════ -->
-  <section id="loginSection">
-    <div class="login-split">
-      <div class="login-brand">
-        <div>
-          <div class="brand-logo">Ability<span>.</span></div>
-          <div class="brand-tagline">Certification Suite</div>
-          <div class="brand-features">
-            <div class="brand-feature">
-              <div class="brand-feature-icon">⚡</div>
-              <div class="brand-feature-text">
-                <strong>Geração Ultrarápida</strong>
-                <span>Renderização e compilação em alta performance.</span>
-              </div>
+    <section id="loginSection" class="auth-wrapper">
+        <div class="auth-card glass-card">
+            <div class="auth-header">
+                <div class="auth-logo">ABILITY PRO</div>
+                <div class="auth-subtitle" style="color: var(--green-bright); letter-spacing: 0.15em;">EQUIPE SSMA</div>
             </div>
-            <div class="brand-feature">
-              <div class="brand-feature-icon">🎯</div>
-              <div class="brand-feature-text">
-                <strong>Mapeamento Automático</strong>
-                <span>Inteligência artificial para pareamento de planilhas.</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="brand-footer">Ability Pro © 2026 • v4.0</div>
-      </div>
 
-      <div class="login-form-panel">
-        <div class="login-form-title">Autenticação</div>
-        <div class="login-form-sub">Aceda ao ecossistema seguro da Ability Pro.</div>
-
-        <div class="login-tabs">
-          <button class="ltab active" id="btnTabMaster" onclick="setLoginTab('master')">Acesso Diretor</button>
-          <button class="ltab" id="btnTabTeam" onclick="setLoginTab('team')">Acesso Equipa</button>
-        </div>
-
-        <div class="login-fields">
-          <div class="field-wrap" id="wrapEmail">
-            <div class="field-label">E-mail Corporativo</div>
-            <input type="email" id="loginEmail" class="field" placeholder="exemplo@ability.com">
-          </div>
-          <div class="field-wrap" id="wrapTeamUser" style="display:none">
-            <div class="field-label">Selecionar Operador</div>
-            <select id="loginTeamSelect" class="field"><option value="">Carregando equipa...</option></select>
-          </div>
-          <div class="field-wrap">
-            <div class="field-label">Palavra-passe</div>
-            <input type="password" id="loginPassword" class="field" placeholder="••••••••">
-          </div>
-          <button class="login-btn" onclick="executarLogin()">Entrar no Sistema</button>
-          <div class="fb-hint" id="loginHint">Utilize as credenciais atribuídas pelo administrador.</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ══════════════════════════════════════════════════════════════════ -->
-  <!-- INTERFACE PRINCIPAL -->
-  <!-- ══════════════════════════════════════════════════════════════════ -->
-  <section id="mainInterface" class="hidden">
-    <div class="topbar">
-      <div class="topbar-brand">
-        <div class="topbar-logo">Ability<span>Pro</span></div>
-        <div class="topbar-divider"></div>
-        <div class="badge badge-neutral" id="userRoleBadge">Operador</div>
-        <div class="badge badge-blue hidden" id="btnToggleAdmin" onclick="toggleAdminPanel()">Painel de Controlo</div>
-      </div>
-      <div class="topbar-actions">
-        <button class="btn-exit" onclick="executarLogout()">Sair</button>
-      </div>
-    </div>
-
-    <!-- Painel Administrativo (apenas Diretor) -->
-    <div class="admin-panel hidden" id="adminPanel">
-      <div class="admin-inner">
-        <div>
-          <div class="admin-title">Gestão de Utilizadores da Equipa</div>
-          <div class="admin-sub">Crie contas secundárias com palavras-passe simples para a sua equipa.</div>
-        </div>
-        <div class="admin-form">
-          <input type="text" id="newTeamName" class="admin-input" placeholder="Nome do membro">
-          <input type="text" id="newTeamPass" class="admin-input" placeholder="Senha simples">
-          <button class="btn-green" onclick="adicionarMembroEquipa()">Adicionar</button>
-        </div>
-      </div>
-      <div class="team-grid" id="teamGrid"></div>
-    </div>
-
-    <div class="app-body">
-      <!-- ══════════════════════════════════════════════════════════════ -->
-      <!-- SIDEBAR -->
-      <!-- ══════════════════════════════════════════════════════════════ -->
-      <aside class="sidebar">
-        <div class="sb-section">
-          <div class="sb-label">Código do Curso</div>
-          <div class="course-grid">
-            <button class="cbtn active" onclick="setCurso('NR10')">NR10</button>
-            <button class="cbtn" onclick="setCurso('NR10 SEP')">NR10 SEP</button>
-            <button class="cbtn" onclick="setCurso('NR20')">NR20</button>
-            <button class="cbtn" onclick="setCurso('NR35')">NR35</button>
-            <button class="cbtn" onclick="setCurso('NR33')">NR33</button>
-            <button class="cbtn" onclick="setCurso('SGA')">SGA</button>
-            <button class="cbtn" onclick="setCurso('DIRECAO')">DIRECAO</button>
-            <button class="cbtn" onclick="setCurso('OUTROS')">OUTROS</button>
-          </div>
-        </div>
-
-        <div class="sb-section">
-          <div class="sb-label">Template Frente (PDF)</div>
-          <div class="pdf-list">
-            <div class="pdf-item" onclick="document.getElementById('pdfFrenteInput').click()">
-              <div class="pdf-icon-wrap">📄</div>
-              <div class="pdf-info">
-                <div class="pdf-name" id="pdfFrenteNameDisplay">Carregar PDF</div>
-                <div class="pdf-sub" id="pdfFrenteSubDisplay">Nenhum ficheiro selecionado</div>
-              </div>
-              <div class="pdf-dot" id="pdfFrenteDotStatus"></div>
-            </div>
-            <input type="file" id="pdfFrenteInput" accept="application/pdf" onchange="manipularUploadPDFFrente(event)">
-          </div>
-        </div>
-
-        <div class="sb-section">
-          <div class="sb-label">Template Verso (PDF) - Opcional</div>
-          <div class="pdf-list">
-            <div class="pdf-item" onclick="document.getElementById('pdfVersoInput').click()">
-              <div class="pdf-icon-wrap">📋</div>
-              <div class="pdf-info">
-                <div class="pdf-name" id="pdfVersoNameDisplay">Carregar Verso</div>
-                <div class="pdf-sub" id="pdfVersoSubDisplay">Opcional</div>
-              </div>
-              <div class="pdf-dot" id="pdfVersoDotStatus"></div>
-            </div>
-            <input type="file" id="pdfVersoInput" accept="application/pdf" onchange="manipularUploadPDFVerso(event)">
-          </div>
-        </div>
-
-        <div class="sb-section">
-          <div class="sb-label">Assinatura Digital</div>
-          <div class="pdf-list">
-            <div class="pdf-item" onclick="document.getElementById('sigFileInput').click()">
-              <div class="pdf-icon-wrap">✒️</div>
-              <div class="pdf-info">
-                <div class="pdf-name" id="sigFileNameDisplay">Carregar Assinatura</div>
-                <div class="pdf-sub" id="sigFileSubDisplay">Ficheiro PNG transparente</div>
-              </div>
-              <div class="pdf-dot" id="sigDotStatus"></div>
-            </div>
-            <input type="file" id="sigFileInput" accept="image/png" onchange="manipularUploadAssinatura(event)">
-          </div>
-          <div class="assinatura-info hidden" id="assinaturaInfoWrap" style="margin-top:8px">
-            <div class="assin-nome" id="txtAssinNome">Nome Diretor</div>
-            <div class="assin-cargo" id="txtAssinCargo">Diretor Geral</div>
-          </div>
-        </div>
-
-        <div class="sb-section">
-          <div class="sb-label">Cor do Texto Primário</div>
-          <div class="color-row">
-            <div class="color-swatch active" style="background:#05070d" onclick="setCorTexto('#05070d', this)"></div>
-            <div class="color-swatch" style="background:#1e293b" onclick="setCorTexto('#1e293b', this)"></div>
-            <div class="color-swatch" style="background:#ffffff;border:1px solid var(--border3)" onclick="setCorTexto('#ffffff', this)"></div>
-            <div class="color-swatch" style="background:#dc2626" onclick="setCorTexto('#dc2626', this)"></div>
-            <div class="color-swatch" style="background:#2563eb" onclick="setCorTexto('#2563eb', this)"></div>
-          </div>
-        </div>
-
-        <div class="sb-section">
-          <div class="sb-label">Ajuste de Elementos (Eixo Y)</div>
-          <div class="sl-list">
-            <div class="sl-card">
-              <div class="sl-header">
-                <div class="sl-field-name">Nome do Aluno</div>
-              </div>
-              <div class="sl-sub">Posição Vertical (Y)</div>
-              <input type="range" id="scaleY_nome" min="50" max="600" value="260" oninput="atualizarConfigPosicao()">
-            </div>
-            <div class="sl-card">
-              <div class="sl-header">
-                <div class="sl-field-name">Metadados / Texto</div>
-              </div>
-              <div class="sl-chips">
-                <span class="sl-chip">CPF</span><span class="sl-chip">Data</span><span class="sl-chip">Empresa</span>
-              </div>
-              <div class="sl-sub" style="margin-top:6px">Posição Vertical (Y)</div>
-              <input type="range" id="scaleY_meta" min="50" max="600" value="340" oninput="atualizarConfigPosicao()">
-            </div>
-            <div class="sl-card">
-              <div class="sl-header">
-                <div class="sl-field-name">Assinatura Digital</div>
-              </div>
-              <div class="sl-sub">Posição Vertical (Y)</div>
-              <input type="range" id="scaleY_assin" min="50" max="600" value="440" oninput="atualizarConfigPosicao()">
-            </div>
-          </div>
-        </div>
-
-        <div class="sb-section">
-          <div class="sb-label">Definições Avançadas</div>
-          <div class="switch-wrap">
-            <div class="switch-info">
-              <div class="switch-lbl">Auditoria</div>
-              <div class="switch-desc">Registrar logs no Firestore</div>
-            </div>
-            <label class="switch">
-              <input type="checkbox" id="chkAuditoria" checked>
-              <span class="slider"></span>
-            </label>
-          </div>
-        </div>
-      </aside>
-
-      <!-- ══════════════════════════════════════════════════════════════ -->
-      <!-- ÁREA PRINCIPAL -->
-      <!-- ══════════════════════════════════════════════════════════════ -->
-      <main class="main-content">
-        <div class="main-toolbar">
-          <button class="tb-btn tb-blue" onclick="document.getElementById('excelFileInput').click()">📊 Importar Excel</button>
-          <input type="file" id="excelFileInput" accept=".xlsx, .xls" onchange="manipularUploadExcel(event)">
-
-          <button class="tb-btn tb-neutral hidden" id="btnVerTabela" onclick="toggleTabelaView()">👁️ Ver Dados</button>
-
-          <div class="tb-spacer"></div>
-
-          <div class="nav-group hidden" id="navGroupAlunos">
-            <button class="nav-btn" id="btnNavPrev" onclick="navegarAluno(-1)">◀</button>
-            <div class="nav-count" id="txtNavCount">0 / 0</div>
-            <button class="nav-btn" id="btnNavNext" onclick="navegarAluno(1)">▶</button>
-          </div>
-
-          <div class="stat-chips hidden" id="toolbarStats">
-            <div class="stat-chip">
-              <div class="stat-num" id="statTotalAlunos">0</div>
-              <div class="stat-lbl">Importados</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tabela de Dados -->
-        <div class="tabela-wrap hidden" id="tabelaDadosWrap">
-          <div class="tabela-header">
-            <div class="tabela-title">Lista de Alunos Importados</div>
-            <input type="text" id="tabelaSearchInput" class="tabela-search" placeholder="Filtrar por nome ou CPF..." oninput="filtrarTabelaAlunos()">
-            <button class="tabela-close" onclick="toggleTabelaView()">Fechar ✕</button>
-          </div>
-          <div class="tabela-body">
-            <table class="tabela" id="tabelaAlunos">
-              <thead>
-                <tr>
-                  <th>Nome</th>
-                  <th>CPF</th>
-                  <th>Data Conclusão</th>
-                  <th>Empresa</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody id="tabelaAlunosBody"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Área de Preview -->
-        <div class="preview-area">
-          <div class="cert-frame-wrapper" id="canvasFrameWrapper">
-            <div class="preview-hud">
-              <div class="preview-hud-badge" id="hudDimensao">PDF: Não Carregado</div>
-              <div class="preview-hud-right">
-                <div class="preview-zoom-btns">
-                  <button class="preview-zoom-btn" onclick="zoomCanvas(0.1)">+</button>
-                  <button class="preview-zoom-btn" onclick="zoomCanvas(-0.1)">−</button>
-                  <button class="preview-zoom-btn" onclick="resetZoomCanvas()">⟲</button>
+            <div class="auth-body">
+                <div id="wrapTeamUser" class="input-group">
+                    <label>Selecionar Operador SSMA</label>
+                    <select id="loginTeamSelect" class="field">
+                        <option value="">Carregando operadores da equipa...</option>
+                    </select>
                 </div>
-              </div>
-            </div>
 
-            <canvas id="previewCanvas" class="hidden" onclick="toggleZoomClique()"></canvas>
+                <div class="input-group">
+                    <label>Código de Acesso / Senha</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••">
+                </div>
 
-            <div class="placeholder" id="previewPlaceholder">
-              <div class="placeholder-icon">📐</div>
-              <div class="placeholder-title">Área de Visualização do Certificado</div>
-              <div class="placeholder-hint">Siga os passos na barra lateral e importe uma listagem para renderizar o lote.</div>
-              <div class="placeholder-steps">
-                <div class="placeholder-step"><span class="step-num">1</span> Selecione o código do curso</div>
-                <div class="placeholder-step"><span class="step-num">2</span> Carregue o template frente (PDF)</div>
-                <div class="placeholder-step"><span class="step-num">3</span> Importe a planilha Excel com os dados</div>
-              </div>
-            </div>
+                <div id="loginHint" class="login-hint">
+                    Acesso local padrão: Usuário correspondente / Código de segurança.
+                </div>
 
-            <div class="preview-student-bar" id="studentPreviewBar">
-              <div class="psb-left">
-                <div class="psb-name" id="psbNome">Nome do Aluno Exemplo</div>
-                <div class="psb-details" id="psbMeta">CPF: 000.000.000-00 • Conclusão: --/--/----</div>
-              </div>
-              <div class="psb-right">
-                <div class="psb-curso" id="psbCursoBadge">CURSO: FSD</div>
-              </div>
+                <button class="login-btn action-button" onclick="executarLogin()">Entrar no Sistema</button>
             </div>
-          </div>
-
-          <div class="bottom-row">
-            <div class="progress-block">
-              <div class="prog-header">
-                <div class="prog-label" id="txtProgressoLabel">Aguardando início do processo</div>
-                <div class="prog-pct" id="txtProgressoPct">0%</div>
-              </div>
-              <div class="prog-track"><div class="prog-fill" id="barProgressoFill"></div></div>
-              <div class="prog-sub" id="txtProgressoSub">Nenhuma operação em lote ativa no momento.</div>
-            </div>
-            <button class="gen-btn" id="btnGerarLote" disabled onclick="gerarTodosCertificados()">⚡ Emitir Certificados em Lote</button>
-          </div>
         </div>
-      </main>
+    </section>
+
+    <main id="mainInterface" class="main-layout hidden">
+        
+        <header class="system-bar glass-card">
+            <div class="bar-brand">
+                <span class="brand-title">ABILITY PRO</span>
+                <span id="userRoleBadge" class="role-badge">Equipe SSMA</span>
+            </div>
+            
+            <div class="bar-actions">
+                <button id="btnToggleAdmin" class="btn-secondary hidden" onclick="toggleAdminPanel()">🛠️ Gestão de Equipa</button>
+                <button class="btn-danger" onclick="executarLogout()">Sair do Sistema ✕</button>
+            </div>
+        </header>
+
+        <div class="dashboard-grid">
+            
+            <aside class="sidebar-controls flex flex-col gap-4">
+                
+                <div class="panel-box glass-card">
+                    <h3 class="panel-title">1. Código do Curso Ativo</h3>
+                    <div class="courses-selector-grid">
+                        <button class="cbtn active" onclick="setCurso('FSD')">FSD</button>
+                        <button class="cbtn" onclick="setCurso('SSMA')">SSMA</button>
+                        <button class="cbtn" onclick="setCurso('DATA')">DATA</button>
+                        <button class="cbtn" onclick="setCurso('UXUI')">UXUI</button>
+                    </div>
+                </div>
+
+                <div class="panel-box glass-card">
+                    <h3 class="panel-title">2. Upload de Assets</h3>
+                    
+                    <div class="upload-field">
+                        <label class="upload-label-btn">
+                            <span>📄 Template Frente (PDF)</span>
+                            <input type="file" accept=".pdf" onchange="manipularUploadPDFFrente(event)" class="hidden">
+                        </label>
+                        <div class="file-status">
+                            <span id="pdfFrenteDotStatus" class="status-dot"></span>
+                            <div>
+                                <p id="pdfFrenteNameDisplay" class="file-name-text">Nenhum ficheiro carregado</p>
+                                <p id="pdfFrenteSubDisplay" class="file-sub-text">—</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="upload-field mt-3">
+                        <label class="upload-label-btn">
+                            <span>📄 Template Verso (PDF/Opcional)</span>
+                            <input type="file" accept=".pdf" onchange="manipularUploadPDFVerso(event)" class="hidden">
+                        </label>
+                        <div class="file-status">
+                            <span id="pdfVersoDotStatus" class="status-dot"></span>
+                            <div>
+                                <p id="pdfVersoNameDisplay" class="file-name-text">Nenhum ficheiro carregado</p>
+                                <p id="pdfVersoSubDisplay" class="file-sub-text">—</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="upload-field mt-3">
+                        <label class="upload-label-btn">
+                            <span>✍️ Assinatura do Diretor (PNG)</span>
+                            <input type="file" accept="image/png" onchange="manipularUploadAssinatura(event)" class="hidden">
+                        </label>
+                        <div class="file-status">
+                            <span id="sigDotStatus" class="status-dot"></span>
+                            <div>
+                                <p id="sigFileNameDisplay" class="file-name-text">Nenhuma assinatura digital</p>
+                                <p id="sigFileSubDisplay" class="file-sub-text">—</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="assinaturaInfoWrap" class="signature-metadata-fields hidden mt-2">
+                        <div id="txtAssinNome" style="display:none;">Nome Diretor</div>
+                        <div id="txtAssinCargo" style="display:none;">Diretor Adjunto Executivo</div>
+                    </div>
+                </div>
+
+                <div class="panel-box glass-card">
+                    <h3 class="panel-title">3. Lista de Alunos</h3>
+                    <button class="btn-success w-full" onclick="document.getElementById('excelFileInput').click()">📊 Importar Planilha Excel (.xlsx)</button>
+                    <input type="file" id="excelFileInput" accept=".xlsx" class="hidden" onchange="manipularUploadExcel(event)">
+                    
+                    <div id="toolbarStats" class="toolbar-stats-container hidden mt-2">
+                        <span>Registos: <strong id="statTotalAlunos">0</strong></span>
+                        <button id="btnVerTabela" class="btn-small hidden" onclick="toggleTabelaView()">👁️ Ver Tabela</button>
+                    </div>
+                </div>
+
+                <div class="panel-box glass-card">
+                    <h3 class="panel-title">4. Ajustes Manuais de Eixo Y</h3>
+                    <div class="range-field">
+                        <label>Posição Nome do Aluno</label>
+                        <input type="range" id="scaleY_nome" min="100" max="500" value="260" oninput="atualizarConfigPosicao()">
+                    </div>
+                    <div class="range-field mt-2">
+                        <label>Posição Bloco Metadados (CPF/Data)</label>
+                        <input type="range" id="scaleY_meta" min="150" max="550" value="340" oninput="atualizarConfigPosicao()">
+                    </div>
+                    <div class="range-field mt-2">
+                        <label>Posição Assinatura Digital</label>
+                        <input type="range" id="scaleY_assin" min="200" max="580" value="440" oninput="atualizarConfigPosicao()">
+                    </div>
+                    
+                    <div class="color-picker-wrapper mt-3">
+                        <label class="block text-xs mb-1">Cor da Fonte Tipográfica</label>
+                        <div class="color-swatches">
+                            <div class="color-swatch active" style="background:#05070d;" onclick="setCorTexto('#05070d', this)"></div>
+                            <div class="color-swatch" style="background:#1e293b;" onclick="setCorTexto('#1e293b', this)"></div>
+                            <div class="color-swatch" style="background:#ffffff;" onclick="setCorTexto('#ffffff', this)"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-box glass-card">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="chkAuditoria" checked>
+                        <span class="checkmark"></span>
+                        Registrar logs em Nuvem (Auditoria)
+                    </label>
+                </div>
+            </aside>
+
+            <section class="preview-area flex flex-col gap-4">
+                
+                <div id="navGroupAlunos" class="preview-nav-bar glass-card hidden">
+                    <div class="nav-student-info">
+                        <span id="psbCursoBadge" class="mini-badge-curso">CURSO: —</span>
+                        <div>
+                            <h4 id="psbNome" class="nav-student-name">Aguardando importação</h4>
+                            <p id="psbMeta" class="nav-student-meta">—</p>
+                        </div>
+                    </div>
+                    
+                    <div class="nav-buttons-group">
+                        <button id="btnNavPrev" class="btn-nav" onclick="navegarAluno(-1)" disabled>◀</button>
+                        <span id="txtNavCount" class="nav-counter-label">0 / 0</span>
+                        <button id="btnNavNext" class="btn-nav" onclick="navegarAluno(1)" disabled>▶</button>
+                    </div>
+                </div>
+
+                <div id="canvasFrameWrapper" class="canvas-viewport-frame glass-card">
+                    <div class="canvas-hud">
+                        <span id="hudDimensao">Resolução: 0×0 px</span>
+                        <div class="hud-zoom-controls">
+                            <button onclick="zoomCanvas(-0.1)">➖</button>
+                            <button onclick="resetZoomCanvas()">100%</button>
+                            <button onclick="zoomCanvas(0.1)">➕</button>
+                        </div>
+                    </div>
+
+                    <div id="previewPlaceholder" class="placeholder-content">
+                        <div class="placeholder-icon">🖨️</div>
+                        <h3>Nenhum Template Ativo</h3>
+                        <p>Carregue o arquivo de frente (PDF) e a planilha de dados para ativar a renderização estática.</p>
+                    </div>
+
+                    <canvas id="previewCanvas" class="hidden" onclick="toggleZoomClique()"></canvas>
+                </div>
+
+                <div class="batch-execution-panel glass-card">
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-text">
+                            <span id="txtProgressoLabel">Aguardando comando de lote...</span>
+                            <span id="txtProgressoPct">0%</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div id="barProgressoFill" class="progress-bar-fill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    
+                    <button id="btnGerarLote" class="btn-primary-lote" onclick="gerarTodosCertificados()">
+                        🚀 ENCAPSULAR TODOS OS CERTIFICADOS EM LOTE (.ZIP)
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        <section id="tabelaDadosWrap" class="table-overlay-section glass-card hidden">
+            <div class="table-section-header">
+                <h3>Visualização e Emissão Individual de Registos</h3>
+                <div class="table-header-controls">
+                    <input type="text" id="tabelaSearchInput" placeholder="🔍 Filtrar por nome ou CPF..." oninput="filtrarTabelaAlunos()">
+                    <button class="btn-small" onclick="toggleTabelaView()">Fechar Tabela ✕</button>
+                </div>
+            </div>
+            <div class="table-scroll-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Nome do Aluno</th>
+                            <th>CPF / Documento</th>
+                            <th>Data de Conclusão</th>
+                            <th>Empresa / Organização</th>
+                            <th>Ações Rápidas</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaAlunosBody">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="adminPanel" class="admin-management-overlay glass-card hidden">
+            <div class="admin-panel-header">
+                <h2>🛠️ Gestão de Operadores Autorizados (Cloud Firestore)</h2>
+                <button class="btn-small" onclick="toggleAdminPanel()">Fechar Painel ✕</button>
+            </div>
+            
+            <div class="admin-panel-grid">
+                <div class="admin-form-box">
+                    <h4>Adicionar Novo Operador à Equipa</h4>
+                    <div class="input-group mt-2">
+                        <label>Nome do Colaborador</label>
+                        <input type="text" id="newTeamName" placeholder="Ex: João Silva">
+                    </div>
+                    <div class="input-group mt-2">
+                        <label>Senha Pessoal de Acesso</label>
+                        <input type="text" id="newTeamPass" placeholder="Ex: 998877">
+                    </div>
+                    <button class="btn-success w-full mt-3" onclick="adicionarMembroEquipa()">Salvar Credenciais na Nuvem</button>
+                </div>
+
+                <div class="admin-list-box">
+                    <h4>Operadores Cadastrados Ativos</h4>
+                    <div id="teamGrid" class="team-cards-grid-layout">
+                        </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="colMapModal" class="modal-backdrop-blur hidden">
+        <div class="modal-box glass-card">
+            <div class="modal-header-title">
+                📌 Mapeamento de Colunas Obrigatórias
+            </div>
+            <p class="modal-description-text">
+                Detetamos discrepâncias no cabeçalho automático da planilha importada. Por favor, aponte quais colunas correspondem aos campos abaixo:
+            </p>
+            <div id="colMapBody" class="modal-body-fields">
+                </div>
+            <div class="modal-footer-actions">
+                <button class="btn-primary" onclick="confirmarMapeamentoColunas()">Confirmar Mapeamento & Importar</button>
+            </div>
+        </div>
     </div>
-  </section>
 
-  <!-- Modal de Mapeamento de Colunas -->
-  <div class="modal-overlay hidden" id="colMapModal">
-    <div class="modal-box">
-      <div class="modal-header">
-        <div class="modal-title">Mapeamento Inteligente de Colunas</div>
-      </div>
-      <div class="modal-body" id="colMapBody"></div>
-      <div class="modal-footer">
-        <button class="btn-green" onclick="confirmarMapeamentoColunas()">Confirmar Pareamento</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Container de Notificações Toast -->
-  <div class="toast-container" id="toastContainer"></div>
-
-  <!-- JavaScript Principal -->
-  <script src="app.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
