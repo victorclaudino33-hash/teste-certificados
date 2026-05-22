@@ -1,8 +1,33 @@
-/* ══════════════════════════════════════════════════════════════════════ */
+* ══════════════════════════════════════════════════════════════════════ */
 /* ABILITY PRO - CERTIFICATION SUITE v4.0                                 */
 /* Core Application Script (app.js)                                       */
 /* ══════════════════════════════════════════════════════════════════════ */
+// 1. ADICIONE ISSO NO TOPO DO SEU SCRIPT.JS
+import { initializeApp } from "firebase/app";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
+import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 
+const firebaseConfig = {
+  apiKey: "AIzaSyBzUJOntKwQIqYONKYK_yZGDOn3LHMx9Rg",
+  authDomain: "certificados-211e8.firebaseapp.com",
+  projectId: "certificados-211e8",
+  storageBucket: "certificados-211e8.firebasestorage.app",
+  messagingSenderId: "778706007723",
+  appId: "1:778706007723:web:dd3ddf6e8b2351d49e29ee"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// ... (Cole aqui o restante da lógica de login, abas e toasts que passei na resposta anterior) ...
+
+
+// ==========================================================================
+// 2. O SEU CÓDIGO ANTIGO COMEÇA AQUI EMBAIXO
+// ==========================================================================
+// Toda a lógica que você já tinha para gerar certificados, mexer no canvas, etc.
+// vai continuar funcionando perfeitamente logo abaixo do bloco do Firebase.
 document.addEventListener('DOMContentLoaded', () => {
     // ── STORES & ESTADO DA APLICAÇÃO ──
     const state = {
