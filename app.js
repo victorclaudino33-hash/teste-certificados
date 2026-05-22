@@ -1,8 +1,7 @@
-* ══════════════════════════════════════════════════════════════════════ */
-/* ABILITY PRO - CERTIFICATION SUITE v4.0                                 */
-/* Core Application Script (app.js)                                       */
 /* ══════════════════════════════════════════════════════════════════════ */
-// 1. ADICIONE ISSO NO TOPO DO SEU SCRIPT.JS
+/* ABILITY PRO - CERTIFICATION SUITE v4.0                                 */
+/* Core Application Script (Modular Firebase Integrated)                  */
+/* ══════════════════════════════════════════════════════════════════════ */
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
 import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
@@ -16,20 +15,14 @@ const firebaseConfig = {
   appId: "1:778706007723:web:dd3ddf6e8b2351d49e29ee"
 };
 
+// Inicializa o ecossistema Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// ... (Cole aqui o restante da lógica de login, abas e toasts que passei na resposta anterior) ...
-
-
-// ==========================================================================
-// 2. O SEU CÓDIGO ANTIGO COMEÇA AQUI EMBAIXO
-// ==========================================================================
-// Toda a lógica que você já tinha para gerar certificados, mexer no canvas, etc.
-// vai continuar funcionando perfeitamente logo abaixo do bloco do Firebase.
 document.addEventListener('DOMContentLoaded', () => {
-    // ── STORES & ESTADO DA APLICAÇÃO ──
+    
+    // ── ESTADO GLOBAL DA APLICAÇÃO ──
     const state = {
         currentUser: null,
         isAdmin: false,
@@ -37,7 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
         loadedStudents: [],
         currentIndex: -1,
         zoomLevel: 100,
-        isZoomed: false,
         certificateTemplate: null,
         config: {
             textColor: '#f0f4ff',
@@ -46,456 +38,137 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Usuários padrão do sistema (Mock inicial)
-    const DEFAULT_USERS = [
-        { name: 'admin', pass: 'admin123', role: 'admin' },
-        { name: 'user', pass: 'user123', role: 'user' }
-    ];
-
-    // Inicialização do LocalStorage para credenciais da equipe
-    if (!localStorage.getItem('ability_users')) {
-        localStorage.setItem('ability_users', JSON.stringify(DEFAULT_USERS));
-    }
-
-    // Alunos Mockados para popular a tabela dinamicamente caso um arquivo não seja carregado de imediato
+    // Massa de dados inicial mockada para os alunos
     const MOCK_STUDENTS = [
         { id: '001', name: 'ANA SILVA', course: 'DEV', date: '22/05/2026', status: 'Aprovado' },
         { id: '002', name: 'BRUNO GOMES', course: 'DESIGN', date: '20/05/2026', status: 'Aprovado' },
         { id: '003', name: 'CARLOS SOUZA', course: 'DATA', date: '18/05/2026', status: 'Aprovado' },
-        { id: '004', name: 'DANIELA LIMA', course: 'CYBER', date: '15/05/2026', status: 'Aprovado' }
+        { id: '004', name: 'DANIELA LIMA', course: 'DEV', date: '15/05/2026', status: 'Aprovado' }
     ];
 
-    // ── MAPEAMENTO DE ELEMENTOS DOM ──
+    // ── MAPEAMENTO DE ELEMENTOS DO DOM ──
     const DOM = {
-        // Telas principais
         loginSection: document.getElementById('loginSection'),
         mainInterface: document.getElementById('mainInterface'),
+        tabLogin: document.getElementById('tabLogin'),
+        tabRegister: document.getElementById('tabRegister'),
+        emailField: document.getElementById('emailField'),
+        passwordField: document.getElementById('passwordField'),
+        btnLogin: document.getElementById('btnLogin'),
         
-        // Formulário de Login
-        loginForm: document.querySelector('.login-form-panel form') || document.getElementById('loginForm'),
-        userInput: document.querySelector('input[placeholder="Nome de usuário..."]') || document.getElementById('username'),
-        passInput: document.querySelector('input[placeholder="Senha secreta..."]') || document.getElementById('password'),
-        loginBtn: document.querySelector('.login-btn'),
-        tabs: document.querySelectorAll('.ltab'),
+        userBadge: document.getElementById('userBadge'),
+        btnToggleAdminPanel: document.getElementById('btnToggleAdminPanel'),
+        btnSair: document.getElementById('btnSair'),
+        adminPanel: document.getElementById('adminPanel'),
         
-        // Topbar
-        userBadge: document.getElementById('userBadge') || document.querySelector('.badge-neutral'),
-        adminToggleBadge: document.getElementById('adminToggleBadge') || document.querySelector('.badge-blue'),
-        btnExit: document.querySelector('.btn-exit'),
-        
-        // Painel Admin
-        adminPanel: document.getElementById('adminPanel') || document.querySelector('.admin-panel'),
-        adminForm: document.querySelector('.admin-form'),
-        newUserName: document.querySelector('.admin-input[placeholder="Usuário"]'),
-        newUserPass: document.querySelector('.admin-input[placeholder="Senha"]'),
-        teamGrid: document.querySelector('.team-grid'),
-        
-        // Sidebar Filtros e Uploads
         courseBtns: document.querySelectorAll('.cbtn'),
-        fileInput: document.getElementById('csvUpload') || document.querySelector('input[type="file"]'),
-        pdfItems: document.querySelectorAll('.pdf-item'),
-        colorSwatches: document.querySelectorAll('.color-swatch'),
-        fontSizeSlider: document.querySelector('input[type="range"]'),
-        signatureSwitch: document.querySelector('.switch input'),
+        fileInput: document.getElementById('csvUpload'),
         
-        // Toolbar de Controle
-        statNum: document.querySelector('.stat-num'),
-        statStatus: document.querySelector('.stat-status'),
-        btnPrev: document.querySelectorAll('.nav-btn')[0],
-        btnNext: document.querySelectorAll('.nav-btn')[1],
-        navCount: document.querySelector('.nav-count'),
-        btnToggleTable: document.querySelector('.tb-neutral'),
-        btnExportPDF: document.querySelector('.tb-blue'),
-        btnExportAll: document.querySelector('.tb-green'),
+        statNum: document.getElementById('statTotal'),
+        statStatus: document.getElementById('txtStatus'),
         
-        // Tabela de Dados (Gaveta Dropdown)
-        tabelaWrap: document.getElementById('tabelaWrap') || document.querySelector('.tabela-wrap'),
+        btnToggleTable: document.getElementById('btnToggleTable'),
+        btnExportPDF: document.getElementById('btnExportPDF'),
+        btnExportAll: document.getElementById('btnExportAll'),
+        btnEmitir: document.getElementById('btnEmitir'),
+        
+        tabelaWrap: document.getElementById('tabelaWrap'),
         tabelaSearch: document.querySelector('.tabela-search'),
         tabelaClose: document.querySelector('.tabela-close'),
         tabelaBody: document.querySelector('.tabela tbody'),
         
-        // Preview Area / Canvas
-        previewArea: document.querySelector('.preview-area'),
-        certFrame: document.querySelector('.cert-frame-wrapper'),
         canvas: document.getElementById('previewCanvas'),
-        placeholder: document.querySelector('.placeholder'),
+        placeholder: document.getElementById('canvasPlaceholder'),
         
-        // HUD & PSB Info Elements
-        hudResolution: document.querySelector('.preview-hud-badge'),
-        btnZoomIn: document.querySelectorAll('.preview-zoom-btn')[0],
-        btnZoomOut: document.querySelectorAll('.preview-zoom-btn')[1],
-        psbName: document.querySelector('.psb-name'),
-        psbDetails: document.querySelector('.psb-details'),
-        psbCurso: document.querySelector('.psb-curso'),
-        
-        // Progress e Ação Inferior
         progPct: document.querySelector('.prog-pct'),
         progFill: document.querySelector('.prog-fill'),
-        progSub: document.querySelector('.prog-sub'),
-        btnGenerateSingle: document.querySelector('.gen-btn')
+        progSub: document.querySelector('.prog-sub')
     };
 
     const ctx = DOM.canvas ? DOM.canvas.getContext('2d') : null;
+    let authMode = "login"; // "login" ou "cadastro"
 
-    // ── INTERFACES & NAVEGAÇÃO DE TELAS ──
+    // ── MONITORA ESTADO DE AUTENTICAÇÃO DO FIREBASE ──
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            state.currentUser = user.email;
+            DOM.loginSection.classList.add('hidden');
+            DOM.mainInterface.classList.remove('hidden');
+            DOM.userBadge.textContent = user.email;
+
+            // Busca privilégios de Admin no Firestore
+            try {
+                const docSnap = await getDoc(doc(db, "usuarios", user.uid));
+                if (docSnap.exists() && docSnap.data().role === 'admin') {
+                    state.isAdmin = true;
+                    DOM.btnToggleAdminPanel.classList.remove('hidden');
+                } else {
+                    state.isAdmin = false;
+                    DOM.btnToggleAdminPanel.classList.add('hidden');
+                }
+            } catch (err) {
+                console.log("Perfil carregado sem banco Firestore ativo.");
+            }
+
+            // Inicializa dados do app se houver estudantes na fila
+            if (state.loadedStudents.length === 0) {
+                state.loadedStudents = [...MOCK_STUDENTS];
+            }
+            updateProgressTracks();
+            renderTableRows();
+            selectStudent(0);
+        } else {
+            state.currentUser = null;
+            state.isAdmin = false;
+            DOM.loginSection.classList.remove('hidden');
+            DOM.mainInterface.classList.add('hidden');
+            clearPreview();
+        }
+    });
+
+    // ── INICIALIZAÇÃO GERAL DO SISTEMA ──
     function initApp() {
-        // Forçar injeção de IDs caso o HTML não possua mapeado nativamente
-        setupFallbacksEIdentificadores();
-        
-        // Carrega estado de Alunos Padrão
-        state.loadedStudents = [...MOCK_STUDENTS];
-        updateGlobalStats();
-        renderTableRows();
-
-        // Esconder painel admin por padrão
-        if (DOM.adminPanel) DOM.adminPanel.classList.add('hidden');
-        if (DOM.tabelaWrap) DOM.tabelaWrap.classList.add('hidden');
-
-        // Criação de Template de Certificado base em memória
         createBaseTemplate();
         setupEventListeners();
     }
 
-    function setupFallbacksEIdentificadores() {
-        // Garante que elementos estruturais críticos possuam gatilhos operacionais corretos
-        if (DOM.loginForm) {
-            DOM.loginForm.addEventListener('submit', (e) => e.preventDefault());
-        }
-    }
+    // ── EVENTOS DE CADASTRO E LOGIN COM FIREBASE ──
+    async function handleAuthAction() {
+        const email = DOM.emailField.value.trim();
+        const password = DOM.passwordField.value;
 
-    // ── SESSÃO & AUTENTICAÇÃO ──
-    function handleLogin() {
-        const username = DOM.userInput.value.trim();
-        const password = DOM.passInput.value.trim();
-
-        if (!username || !password) {
-            alert('Por favor, preencha todos os campos.');
+        if (!email || !password) {
+            mostrarToast("Preencha todos os campos.");
             return;
         }
 
-        const users = JSON.parse(localStorage.getItem('ability_users'));
-        const userFound = users.find(u => u.name === username && u.pass === password);
-
-        if (userFound) {
-            state.currentUser = userFound.name;
-            state.isAdmin = userFound.role === 'admin';
-
-            // Transição visual fluida de telas
-            DOM.loginSection.classList.add('hidden');
-            DOM.mainInterface.classList.remove('hidden');
-
-            // Atualização do HUD de controle de perfil
-            if (DOM.userBadge) DOM.userBadge.textContent = state.currentUser;
-            
-            if (state.isAdmin) {
-                if (DOM.adminToggleBadge) DOM.adminToggleBadge.classList.remove('hidden');
-                renderTeamGrid();
-            } else {
-                if (DOM.adminToggleBadge) DOM.adminToggleBadge.classList.add('hidden');
-            }
-            
-            // Renderiza o primeiro aluno disponível no preview
-            if (state.loadedStudents.length > 0) {
-                selectStudent(0);
-            }
-        } else {
-            alert('Credenciais inválidas. Use os acessos indicados no rodapé.');
-        }
-    }
-
-    function handleLogout() {
-        state.currentUser = null;
-        state.isAdmin = false;
-        DOM.userInput.value = '';
-        DOM.passInput.value = '';
-        DOM.mainInterface.classList.add('hidden');
-        DOM.loginSection.classList.remove('hidden');
-    }
-
-    // ── CONTROLE DO PAINEL ADMINISTRATIVO (GERENCIAMENTO DA EQUIPE) ──
-    function toggleAdminPanel() {
-        if (!state.isAdmin) return;
-        DOM.adminPanel.classList.toggle('hidden');
-    }
-
-    function renderTeamGrid() {
-        if (!DOM.teamGrid) return;
-        const users = JSON.parse(localStorage.getItem('ability_users'));
-        DOM.teamGrid.innerHTML = '';
-
-        users.forEach(user => {
-            const card = document.createElement('div');
-            card.className = 'team-card';
-            card.innerHTML = `
-                <div class="team-card-name">${user.name} [${user.role}]</div>
-                <div class="team-card-pass">Pass: ${user.pass}</div>
-                ${user.name !== 'admin' ? `<button class="team-card-remove" data-name="${user.name}">Excluir</button>` : ''}
-            `;
-            DOM.teamGrid.appendChild(card);
-        });
-
-        // Eventos para remoção de membros
-        DOM.teamGrid.querySelectorAll('.team-card-remove').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const nameToRemove = e.target.getAttribute('data-name');
-                let users = JSON.parse(localStorage.getItem('ability_users'));
-                users = users.filter(u => u.name !== nameToRemove);
-                localStorage.setItem('ability_users', JSON.stringify(users));
-                renderTeamGrid();
-            });
-        });
-    }
-
-    function addNewUser(e) {
-        if(e) e.preventDefault();
-        const name = DOM.newUserName.value.trim();
-        const pass = DOM.newUserPass.value.trim();
-
-        if (!name || !pass) {
-            alert('Preencha os dados do novo membro da equipe.');
-            return;
-        }
-
-        let users = JSON.parse(localStorage.getItem('ability_users'));
-        if (users.some(u => u.name === name)) {
-            alert('Este usuário já existe.');
-            return;
-        }
-
-        users.push({ name, pass, role: 'user' });
-        localStorage.setItem('ability_users', JSON.stringify(users));
-        
-        DOM.newUserName.value = '';
-        DOM.newUserPass.value = '';
-        renderTeamGrid();
-    }
-
-    // ── PROCESSAMENTO DE ARQUIVOS (CSV DATA DISPATCHER) ──
-    function triggerFileInput() {
-        DOM.fileInput.click();
-    }
-
-    function handleFileUpload(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-            const text = evt.target.result;
-            parseCSVData(text, file.name);
-        };
-        reader.readAsText(file, 'UTF-8');
-    }
-
-    function parseCSVData(text, filename) {
         try {
-            const lines = text.split('\n');
-            const result = [];
-            
-            // Loop pulando o cabeçalho simples do arquivo CSV
-            for (let i = 1; i < lines.length; i++) {
-                if (!lines[i].trim()) continue;
-                const columns = lines[i].split(',');
-                
-                if (columns.length >= 3) {
-                    result.push({
-                        id: String(i).padStart(3, '0'),
-                        name: columns[0].replace(/"/g, '').trim().toUpperCase(),
-                        course: columns[1].replace(/"/g, '').trim().toUpperCase(),
-                        date: columns[2].replace(/"/g, '').trim() || '22/05/2026',
-                        status: columns[3] ? columns[3].replace(/"/g, '').trim() : 'Aprovado'
-                    });
-                }
-            }
-
-            if (result.length > 0) {
-                state.loadedStudents = result;
-                
-                // Atualizar indicador visual de arquivo carregado (dot green)
-                DOM.pdfItems.forEach(item => {
-                    const dot = item.querySelector('.pdf-dot');
-                    if (dot) dot.classList.add('loaded');
-                    const sub = item.querySelector('.pdf-sub');
-                    if (sub) sub.textContent = filename;
+            if (authMode === "cadastro") {
+                const credential = await createUserWithEmailAndPassword(auth, email, password);
+                // Registra o perfil padrão de admin na coleção Firestore
+                await setDoc(doc(db, "usuarios", credential.user.uid), {
+                    email: credential.user.email,
+                    role: "admin",
+                    createdAt: new Date().toISOString()
                 });
-
-                updateGlobalStats();
-                state.activeCourse = 'ALL';
-                resetCourseTabsActive();
-                renderTableRows();
-                selectStudent(0);
+                mostrarToast("Conta de administrador criada!");
             } else {
-                alert('Nenhum dado válido encontrado no arquivo CSV.');
+                await signInWithEmailAndPassword(auth, email, password);
+                mostrarToast("Acesso autorizado!");
             }
-        } catch (err) {
-            alert('Erro ao processar o arquivo de dados. Certifique-se que o layout segue o padrão: Nome, Curso, Data.');
+        } catch (error) {
+            tratarErrosFirebase(error);
         }
     }
 
-    // ── FILTRAGEM, TABELA DE DADOS & NAVEGAÇÃO ──
-    function handleCourseFilter(e) {
-        const target = e.currentTarget;
-        state.activeCourse = target.getAttribute('data-course') || 'ALL';
-        
-        resetCourseTabsActive();
-        target.classList.add('active');
-        
-        renderTableRows();
-        
-        // Seleciona automaticamente o primeiro registro do novo filtro
-        const filtered = getFilteredStudents();
-        if (filtered.length > 0) {
-            const realIndex = state.loadedStudents.findIndex(s => s.id === filtered[0].id);
-            selectStudent(realIndex);
-        } else {
-            clearPreview();
-        }
-    }
-
-    function resetCourseTabsActive() {
-        DOM.courseBtns.forEach(btn => btn.classList.remove('active'));
-        if (state.activeCourse === 'ALL') DOM.courseBtns[0].classList.add('active');
-    }
-
-    function getFilteredStudents() {
-        if (state.activeCourse === 'ALL') {
-            return state.loadedStudents;
-        }
-        return state.loadedStudents.filter(s => s.course === state.activeCourse);
-    }
-
-    function renderTableRows() {
-        if (!DOM.tabelaBody) return;
-        DOM.tabelaBody.innerHTML = '';
-        
-        const filtered = getFilteredStudents();
-        const searchWord = DOM.tabelaSearch.value.toLowerCase();
-
-        filtered.forEach(student => {
-            if (searchWord && !student.name.toLowerCase().includes(searchWord) && !student.id.includes(searchWord)) {
-                return;
-            }
-
-            const tr = document.createElement('tr');
-            if (state.currentIndex !== -1 && state.loadedStudents[state.currentIndex]?.id === student.id) {
-                tr.className = 'row-ativo';
-            }
-
-            tr.innerHTML = `
-                <td>#${student.id}</td>
-                <td><strong>${student.name}</strong></td>
-                <td>${student.course}</td>
-                <td>${student.date}</td>
-                <td><button class="tabela-btn-gen" data-id="${student.id}">Focar</button></td>
-            `;
-
-            // Clique na linha foca o aluno para visualização
-            tr.addEventListener('click', () => {
-                const realIndex = state.loadedStudents.findIndex(s => s.id === student.id);
-                selectStudent(realIndex);
-            });
-
-            DOM.tabelaBody.appendChild(tr);
-        });
-    }
-
-    function selectStudent(index) {
-        if (index < 0 || index >= state.loadedStudents.length) return;
-        state.currentIndex = index;
-        
-        const student = state.loadedStudents[index];
-
-        // Sincronizar classes ativas na tabela sem re-renderizar completa
-        const rows = DOM.tabelaBody.querySelectorAll('tr');
-        const filtered = getFilteredStudents();
-        const filteredIndex = filtered.findIndex(s => s.id === student.id);
-
-        // Atualizar HUD e Controles de Paginação
-        if (DOM.navCount) DOM.navCount.textContent = `${filteredIndex + 1} / ${filtered.length}`;
-        DOM.btnPrev.disabled = filteredIndex <= 0;
-        DOM.btnNext.disabled = filteredIndex >= filtered.length - 1 || filteredIndex === -1;
-
-        // Atualizar Informações de Status na Toolbar
-        if (DOM.statNum) DOM.statNum.textContent = String(filteredIndex + 1).padStart(2, '0');
-        if (DOM.statStatus) DOM.statStatus.innerHTML = `Visualizando: <strong>${student.name}</strong>`;
-
-        // Ativar HUD Inferior e PSB
-        if (DOM.placeholder) DOM.placeholder.classList.add('hidden');
-        if (DOM.canvas) DOM.canvas.classList.remove('hidden');
-        if (DOM.certFrame) DOM.certFrame.classList.add('loaded');
-
-        if (DOM.psbName) DOM.psbName.textContent = student.name;
-        if (DOM.psbDetails) DOM.psbDetails.textContent = `Emissão realizada em ${student.date} | ID único: REG-${student.id}94B`;
-        if (DOM.psbCurso) DOM.psbCurso.textContent = student.course;
-
-        updateProgressTracks();
-        renderCertificateCanvas();
-    }
-
-    function navigateStudents(direction) {
-        const filtered = getFilteredStudents();
-        if (filtered.length === 0) return;
-
-        const currentStudent = state.loadedStudents[state.currentIndex];
-        let currentFilteredIndex = filtered.findIndex(s => s.id === currentStudent?.id);
-
-        if (direction === 'next' && currentFilteredIndex < filtered.length - 1) {
-            currentFilteredIndex++;
-        } else if (direction === 'prev' && currentFilteredIndex > 0) {
-            currentFilteredIndex--;
-        }
-
-        const realIndex = state.loadedStudents.findIndex(s => s.id === filtered[currentFilteredIndex].id);
-        selectStudent(realIndex);
-        
-        // Destacar linha na tabela visível
-        const rows = DOM.tabelaBody.querySelectorAll('tr');
-        rows.forEach((row, idx) => {
-             row.classList.remove('row-ativo');
-             if(idx === currentFilteredIndex) row.classList.add('row-ativo');
-        });
-    }
-
-    function updateGlobalStats() {
-        // Atualiza percentuais das barras de progresso base
-        updateProgressTracks();
-    }
-
-    function updateProgressTracks() {
-        const filtered = getFilteredStudents();
-        if (filtered.length === 0) return;
-
-        const currentStudent = state.loadedStudents[state.currentIndex];
-        const currentFilteredIndex = filtered.findIndex(s => s.id === currentStudent?.id) + 1;
-        
-        const pct = filtered.length > 0 ? Math.round((currentFilteredIndex / filtered.length) * 100) : 0;
-        
-        if (DOM.progPct) DOM.progPct.textContent = `${pct}%`;
-        if (DOM.progFill) DOM.progFill.style.width = `${pct}%`;
-        if (DOM.progSub) DOM.progSub.textContent = `Fila de Impressão de Certificados: Registro ${currentFilteredIndex} de ${filtered.length} ativos.`;
-    }
-
-    function clearPreview() {
-        state.currentIndex = -1;
-        if (DOM.placeholder) DOM.placeholder.classList.remove('hidden');
-        if (DOM.canvas) DOM.canvas.classList.add('hidden');
-        if (DOM.certFrame) DOM.certFrame.classList.remove('loaded');
-        if (DOM.navCount) DOM.navCount.textContent = `0 / 0`;
-        DOM.btnPrev.disabled = true;
-        DOM.btnNext.disabled = true;
-    }
-
-    // ── MOTOR DE RENDERIZAÇÃO CANVAS GRAPHICS ──
+    // ── MOTOR DE RENDERIZAÇÃO DO CERTIFICADO (CANVAS) ──
     function createBaseTemplate() {
-        // Inicializa uma imagem em cache para o fundo do certificado
         state.certificateTemplate = new Image();
-        // Construção de um background procedural elegante via SVG em linha para evitar dependências externas de rede
         const svg = `
             <svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
                 <rect width="1920" height="1080" fill="#090c14"/>
                 <rect x="40" y="40" width="1840" height="1000" fill="none" stroke="#222e47" stroke-width="2"/>
                 <rect x="55" y="55" width="1810" height="970" fill="none" stroke="#dc2626" stroke-width="1" stroke-opacity="0.4"/>
-                <!-- Grafismos de fundo nos cantos -->
                 <path d="M40 200 L200 40 M40 300 L300 40" stroke="#161c2a" stroke-width="1"/>
                 <path d="M1880 880 L1720 1040 M1880 780 L1620 1040" stroke="#161c2a" stroke-width="1"/>
             </svg>
@@ -510,57 +183,41 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!ctx || !DOM.canvas || state.currentIndex === -1) return;
 
         const student = state.loadedStudents[state.currentIndex];
-        
-        // Ajuste de resolução nativa para resoluções ultra nítidas (FHD)
         DOM.canvas.width = 1920;
         DOM.canvas.height = 1080;
 
-        // Desenhar Background Base
         if (state.certificateTemplate && state.certificateTemplate.complete) {
             ctx.drawImage(state.certificateTemplate, 0, 0);
-        } else {
-            ctx.fillStyle = '#090c14';
-            ctx.fillRect(0, 0, 1920, 1080);
         }
 
-        // Configuração de Estilos Dinâmicos baseado nos painéis laterais de customização
-        const textColor = state.config.textColor;
         const multiplier = state.config.fontSizeMultiplier;
 
-        // Título Principal do Diploma
         ctx.fillStyle = '#dc2626';
-        ctx.font = `800 ${62 * multiplier}px Syne, Arial, sans-serif`;
+        ctx.font = `800 ${62 * multiplier}px Syne, sans-serif`;
         ctx.textAlign = 'center';
         ctx.fillText('CERTIFICADO DE PROFICIÊNCIA', 1920 / 2, 220);
 
-        // Subtítulo descritivo de Concessão
         ctx.fillStyle = '#8494b8';
         ctx.font = `600 ${22 * multiplier}px 'DM Sans', sans-serif`;
         ctx.fillText('A COORDENAÇÃO DE CERTIFICAÇÕES DA ABILITY PRO DECLARA QUE', 1920 / 2, 360);
 
-        // Nome do Formando Aluno
-        ctx.fillStyle = textColor;
-        ctx.font = `800 ${76 * multiplier}px Syne, Arial, sans-serif`;
+        ctx.fillStyle = state.config.textColor;
+        ctx.font = `800 ${76 * multiplier}px Syne, sans-serif`;
         ctx.fillText(student.name, 1920 / 2, 490);
 
-        // Texto do escopo de aprovação do Curso
         ctx.fillStyle = '#8494b8';
         ctx.font = `400 ${24 * multiplier}px 'DM Sans', sans-serif`;
-        ctx.fillText(`concluiu com êxito os requisitos e critérios de avaliação do programa de formação corporativa em`, 1920 / 2, 590);
+        ctx.fillText(`concluiu com êxito os requisitos e critérios de avaliação do programa em`, 1920 / 2, 590);
 
-        // Nome do Curso focado em Alta Definição
         ctx.fillStyle = '#ef4444';
-        ctx.font = `700 ${38 * multiplier}px Syne, Arial, sans-serif`;
+        ctx.font = `700 ${38 * multiplier}px Syne, sans-serif`;
         ctx.fillText(student.course.toUpperCase() + ' ADVANCED EXPERT', 1920 / 2, 660);
 
-        // Rodapé de segurança com metadados e data de emissão
         ctx.fillStyle = '#3d4a66';
-        ctx.font = `500 ${16 * multiplier}px monospace`;
-        ctx.fillText(`DATA DA EMISSÃO: ${student.date}  |  VALIDAÇÃO AUTÊNTICA ID: AB-PRO-${student.id}94B-2026`, 1920 / 2, 780);
+        ctx.font = `500 16px monospace`;
+        ctx.fillText(`DATA DA EMISSÃO: ${student.date}  |  VALIDAÇÃO AUTÊNTICA ID: AB-PRO-${student.id}94B`, 1920 / 2, 780);
 
-        // Renderização Dinâmica Condicional de Assinatura Digital da Diretoria
         if (state.config.showSignature) {
-            // Linha da assinatura
             ctx.strokeStyle = '#222e47';
             ctx.lineWidth = 2;
             ctx.beginPath();
@@ -568,57 +225,121 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.lineTo((1920 / 2) + 250, 930);
             ctx.stroke();
 
-            // Texto da Assinatura Corporativa (Mock de Controle de Logins de Administrador)
             ctx.fillStyle = '#8494b8';
             ctx.font = `italic 24px 'Syne', sans-serif`;
             ctx.fillText('Ability Certification Authority', 1920 / 2, 910);
-
-            ctx.fillStyle = '#3d4a66';
-            ctx.font = `600 ${14 * multiplier}px 'DM Sans', sans-serif`;
-            ctx.fillText('DIRETOR DE OPERAÇÕES E LOGIN ROOT', 1920 / 2, 965);
-        }
-
-        // Atualiza a resolução dinamicamente no HUD para feedback imediato do operador
-        if (DOM.hudResolution) {
-            DOM.hudResolution.textContent = `PREVIEW ATIVO: 1920x1080 PX (FHD) - ZOOM ${state.zoomLevel}%`;
         }
     }
 
-    // ── CONTROLES DE ZOOM & INTERAÇÃO DA VIEWPORT ──
-    function handleZoom(amount) {
-        if (amount === 'in' && state.zoomLevel < 150) {
-            state.zoomLevel += 10;
-        } else if (amount === 'out' && state.zoomLevel > 60) {
-            state.zoomLevel -= 10;
-        }
-        applyZoomStyles();
+    // ── LEITURA DE CSV EXTERNO ──
+    function handleFileUpload(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            const text = evt.target.result;
+            parseCSVData(text, file.name);
+        };
+        reader.readAsText(file, 'UTF-8');
     }
 
-    function toggleCanvasZoom() {
-        state.isZoomed = !state.isZoomed;
-        if (state.isZoomed) {
-            DOM.canvas.classList.add('zoomed');
-            DOM.canvas.style.transform = 'scale(1.25)';
-        } else {
-            DOM.canvas.classList.remove('zoomed');
-            DOM.canvas.style.transform = 'scale(1)';
-            state.zoomLevel = 100;
+    function parseCSVData(text, filename) {
+        const lines = text.split('\n');
+        const result = [];
+        for (let i = 1; i < lines.length; i++) {
+            if (!lines[i].trim()) continue;
+            const columns = lines[i].split(',');
+            if (columns.length >= 2) {
+                result.push({
+                    id: String(i).padStart(3, '0'),
+                    name: columns[0].replace(/"/g, '').trim().toUpperCase(),
+                    course: columns[1].replace(/"/g, '').trim().toUpperCase(),
+                    date: columns[2] ? columns[2].replace(/"/g, '').trim() : '22/05/2026',
+                    status: 'Aprovado'
+                });
+            }
         }
+        if (result.length > 0) {
+            state.loadedStudents = result;
+            const sub = document.getElementById('txtFrente');
+            if (sub) sub.textContent = filename;
+            state.activeCourse = 'ALL';
+            renderTableRows();
+            selectStudent(0);
+            mostrarToast("Lista carregada com sucesso!");
+        }
+    }
+
+    // ── FILTROS E TABELA DE ALUNOS ──
+    function getFilteredStudents() {
+        if (state.activeCourse === 'ALL') return state.loadedStudents;
+        return state.loadedStudents.filter(s => s.course === state.activeCourse);
+    }
+
+    function renderTableRows() {
+        if (!DOM.tabelaBody) return;
+        DOM.tabelaBody.innerHTML = '';
+        const filtered = getFilteredStudents();
+        const searchWord = DOM.tabelaSearch ? DOM.tabelaSearch.value.toLowerCase() : "";
+
+        filtered.forEach(student => {
+            if (searchWord && !student.name.toLowerCase().includes(searchWord)) return;
+
+            const tr = document.createElement('tr');
+            tr.style.borderBottom = "1px solid #1a233a";
+            tr.style.cursor = "pointer";
+            tr.innerHTML = `
+                <td style="padding:10px;">#${student.id}</td>
+                <td style="padding:10px;"><strong>${student.name}</strong></td>
+                <td style="padding:10px;">${student.course}</td>
+                <td style="padding:10px;">${student.date}</td>
+                <td style="padding:10px;"><button style="background:#dc2626; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Focar</button></td>
+            `;
+            tr.addEventListener('click', () => {
+                const realIndex = state.loadedStudents.findIndex(s => s.id === student.id);
+                selectStudent(realIndex);
+            });
+            DOM.tabelaBody.appendChild(tr);
+        });
+    }
+
+    function selectStudent(index) {
+        if (index < 0 || index >= state.loadedStudents.length) return;
+        state.currentIndex = index;
+        const student = state.loadedStudents[index];
+
+        if (DOM.placeholder) DOM.placeholder.classList.add('hidden');
+        if (DOM.canvas) DOM.canvas.classList.remove('hidden');
+
+        if (DOM.statNum) DOM.statNum.textContent = String(student.id);
+        if (DOM.statStatus) DOM.statStatus.innerHTML = `Visualizando: <strong>${student.name}</strong>`;
+
+        updateProgressTracks();
         renderCertificateCanvas();
     }
 
-    function applyZoomStyles() {
-        if (!DOM.canvas) return;
-        DOM.canvas.style.transform = `scale(${state.zoomLevel / 100})`;
-        renderCertificateCanvas();
+    function updateProgressTracks() {
+        const filtered = getFilteredStudents();
+        if (filtered.length === 0) return;
+        const currentStudent = state.loadedStudents[state.currentIndex];
+        const currentFilteredIndex = filtered.findIndex(s => s.id === currentStudent?.id) + 1;
+        const pct = Math.round((currentFilteredIndex / filtered.length) * 100);
+        
+        if (DOM.progPct) DOM.progPct.textContent = `${pct}%`;
+        if (DOM.progFill) DOM.progFill.style.width = `${pct}%`;
+        if (DOM.progSub) DOM.progSub.textContent = `Registro ${currentFilteredIndex} de ${filtered.length} ativos na fila.`;
     }
 
-    // ── EXPORTADORES DE DOCUMENTOS (SINGLE & BATCH PROCESSORS) ──
+    function clearPreview() {
+        state.currentIndex = -1;
+        if (DOM.placeholder) DOM.placeholder.classList.remove('hidden');
+        if (DOM.canvas) DOM.canvas.classList.add('hidden');
+    }
+
     function exportSingleCertificate() {
         if (state.currentIndex === -1) return;
         const student = state.loadedStudents[state.currentIndex];
-        
-        // Simulação avançada de exportação via download direto de DataURL do Canvas
         const dataUrl = DOM.canvas.toDataURL('image/png');
         const link = document.createElement('a');
         link.download = `CERTIFICADO_${student.course}_${student.name.replace(/\s+/g, '_')}.png`;
@@ -626,151 +347,93 @@ document.addEventListener('DOMContentLoaded', () => {
         link.click();
     }
 
-    function exportAllCertificates() {
-        const filtered = getFilteredStudents();
-        if (filtered.length === 0) {
-            alert('Não existem certificados na fila atual para exportação.');
-            return;
-        }
-
-        alert(`Iniciando lote de impressão em massa de ${filtered.length} certificados. O download dos arquivos iniciará automaticamente dentro de instantes.`);
-        
-        let batchIndex = 0;
-        const interval = setInterval(() => {
-            if (batchIndex >= filtered.length) {
-                clearInterval(interval);
-                alert('Lote de exportação finalizado com sucesso.');
-                // Retorna a seleção visual pro primeiro elemento do lote
-                const originalIndex = state.loadedStudents.findIndex(s => s.id === filtered[0].id);
-                selectStudent(originalIndex);
-                return;
-            }
-
-            const targetStudent = filtered[batchIndex];
-            const realIndex = state.loadedStudents.findIndex(s => s.id === targetStudent.id);
-            
-            selectStudent(realIndex);
-            
-            // Força download do canvas renderizado no loop síncrono controlado por tempo
-            const dataUrl = DOM.canvas.toDataURL('image/png');
-            const link = document.createElement('a');
-            link.download = `LOTE_NRO_${targetStudent.id}_${targetStudent.name.replace(/\s+/g, '_')}.png`;
-            link.href = dataUrl;
-            link.click();
-
-            batchIndex++;
-        }, 1200); // Delay seguro de 1.2s para evitar overload no barramento do navegador
-    }
-
-    // ── CONFIGURADORES LATERAIS (CUSTOMIZATION SLIDERS) ──
-    function handleColorChange(e) {
-        DOM.colorSwatches.forEach(swatch => swatch.classList.remove('active'));
-        const activeSwatch = e.currentTarget;
-        activeSwatch.classList.add('active');
-        
-        // Extrai a cor computada do background do elemento ou mapeamento manual
-        const color = activeSwatch.style.backgroundColor || activeSwatch.getAttribute('data-color');
-        if (color) {
-            state.config.textColor = color;
-            renderCertificateCanvas();
-        }
-    }
-
-    function handleFontSizeSlider(e) {
-        const val = parseFloat(e.target.value);
-        state.config.fontSizeMultiplier = val;
-        renderCertificateCanvas();
-    }
-
-    function handleSignatureToggle(e) {
-        state.config.showSignature = e.target.checked;
-        renderCertificateCanvas();
-    }
-
-    // ── ESCUTA E ATRIBUIÇÃO DOS EVENTOS DO DOM ──
+    // ── ATRIBUIÇÃO DE EVENTOS DO DOM ──
     function setupEventListeners() {
-        // Evento de Login e Abas de Credenciais Facilitadas do Rodapé
-        if (DOM.loginForm) {
-            DOM.loginForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                handleLogin();
-            });
-        }
-        if (DOM.loginBtn) DOM.loginBtn.addEventListener('click', handleLogin);
+        DOM.tabLogin.addEventListener('click', () => {
+            DOM.tabLogin.classList.add('active');
+            DOM.tabRegister.classList.remove('active');
+            DOM.btnLogin.textContent = "Entrar na Conta";
+            authMode = "login";
+        });
+
+        DOM.tabRegister.addEventListener('click', () => {
+            DOM.tabRegister.classList.add('active');
+            DOM.tabLogin.classList.remove('active');
+            DOM.btnLogin.textContent = "Criar Nova Conta";
+            authMode = "cadastro";
+        });
+
+        DOM.btnLogin.addEventListener('click', handleAuthAction);
+        DOM.btnSair.addEventListener('click', () => signOut(auth));
         
-        DOM.tabs.forEach(tab => {
-            tab.addEventListener('click', (e) => {
-                DOM.tabs.forEach(t => t.classList.remove('active'));
+        if (DOM.btnToggleAdminPanel) {
+            DOM.btnToggleAdminPanel.addEventListener('click', () => DOM.adminPanel.classList.toggle('hidden'));
+        }
+
+        if (DOM.fileInput) DOM.fileInput.addEventListener('change', handleFileUpload);
+
+        DOM.courseBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                DOM.courseBtns.forEach(b => b.classList.remove('active'));
                 e.currentTarget.classList.add('active');
-                
-                // Preenchimento de credenciais mockadas facilitadas pelas abas
-                const userType = e.currentTarget.textContent.toLowerCase();
-                if (userType.includes('admin')) {
-                    DOM.userInput.value = 'admin';
-                    DOM.passInput.value = 'admin123';
+                state.activeCourse = e.currentTarget.getAttribute('data-curso');
+                renderTableRows();
+                const filtered = getFilteredStudents();
+                if (filtered.length > 0) {
+                    const realIndex = state.loadedStudents.findIndex(s => s.id === filtered[0].id);
+                    selectStudent(realIndex);
                 } else {
-                    DOM.userInput.value = 'user';
-                    DOM.passInput.value = 'user123';
+                    clearPreview();
                 }
             });
         });
 
-        // Saída e Desconexão do painel
-        if (DOM.btnExit) DOM.btnExit.addEventListener('click', handleLogout);
-
-        // Painel Administrativo de Usuários da Equipe
-        if (DOM.adminToggleBadge) DOM.adminToggleBadge.addEventListener('click', toggleAdminPanel);
-        if (DOM.adminForm) DOM.adminForm.addEventListener('submit', addNewUser);
-        const btnAddTeam = DOM.adminForm ? DOM.adminForm.querySelector('.btn-green') : null;
-        if (btnAddTeam) btnAddTeam.addEventListener('click', addNewUser);
-
-        // Carregamento de Lista por Upload de CSV Externo
-        DOM.pdfItems.forEach(item => {
-            item.addEventListener('click', triggerFileInput);
-        });
-        if (DOM.fileInput) DOM.fileInput.addEventListener('change', handleFileUpload);
-
-        // Abas e Filtros de Categoria de Cursos Laterais
-        DOM.courseBtns.forEach(btn => {
-            btn.addEventListener('click', handleCourseFilter);
-        });
-
-        // Controles Customizados Laterais (Cores, Sliders, Switches)
-        DOM.colorSwatches.forEach((swatch, idx) => {
-            // Injeta cor padrão em linha caso o css não renderize nativo
-            const colors = ['#f0f4ff', '#ef4444', '#60a5fa', '#22c55e', '#eab308'];
-            swatch.style.backgroundColor = colors[idx] || '#fff';
-            swatch.setAttribute('data-color', colors[idx]);
-            swatch.addEventListener('click', handleColorChange);
-        });
-
-        if (DOM.fontSizeSlider) DOM.fontSizeSlider.addEventListener('input', handleFontSizeSlider);
-        if (DOM.signatureSwitch) DOM.signatureSwitch.addEventListener('change', handleSignatureToggle);
-
-        // Toolbar de Paginação e Tabela
-        DOM.btnPrev.addEventListener('click', () => navigateStudents('prev'));
-        DOM.btnNext.addEventListener('click', () => navigateStudents('next'));
-        
         if (DOM.btnToggleTable) {
-            DOM.btnToggleTable.addEventListener('click', () => {
-                DOM.tabelaWrap.classList.toggle('hidden');
-                renderTableRows();
-            });
+            DOM.btnToggleTable.addEventListener('click', () => DOM.tabelaWrap.classList.toggle('hidden'));
         }
         if (DOM.tabelaClose) DOM.tabelaClose.addEventListener('click', () => DOM.tabelaWrap.classList.add('hidden'));
         if (DOM.tabelaSearch) DOM.tabelaSearch.addEventListener('input', renderTableRows);
 
-        // Ações de Emissão e Geração de Downloads
-        if (DOM.btnExportPDF) DOM.btnExportPDF.addEventListener('click', exportSingleCertificate);
-        if (DOM.btnGenerateSingle) DOM.btnGenerateSingle.addEventListener('click', exportSingleCertificate);
-        if (DOM.btnExportAll) DOM.btnExportAll.addEventListener('click', exportAllCertificates);
-
-        // Zoom do Canvas e HUD Contextual
-        if (DOM.btnZoomIn) DOM.btnZoomIn.addEventListener('click', () => handleZoom('in'));
-        if (DOM.btnZoomOut) DOM.btnZoomOut.addEventListener('click', () => handleZoom('out'));
-        if (DOM.canvas) DOM.canvas.addEventListener('click', toggleCanvasZoom);
+        DOM.btnExportPDF.addEventListener('click', exportSingleCertificate);
+        DOM.btnEmitir.addEventListener('click', exportSingleCertificate);
+        
+        DOM.btnExportAll.addEventListener('click', () => {
+            const filtered = getFilteredStudents();
+            if (filtered.length === 0) return;
+            mostrarToast("Exportando lote completo...");
+            filtered.forEach((st, idx) => {
+                setTimeout(() => {
+                    const realIndex = state.loadedStudents.findIndex(s => s.id === st.id);
+                    selectStudent(realIndex);
+                    exportSingleCertificate();
+                }, idx * 1000);
+            });
+        });
     }
 
-    // Inicializar Motor da Aplicação
+    function mostrarToast(msg) {
+        const container = document.querySelector(".toast-container");
+        if (!container) return;
+        const toast = document.createElement("div");
+        toast.className = "toast";
+        toast.style.background = "#1a233a";
+        toast.style.color = "#fff";
+        toast.style.padding = "12px 24px";
+        toast.style.margin = "10px";
+        toast.style.borderRadius = "4px";
+        toast.innerText = msg;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 3500);
+    }
+
+    function tratarErrosFirebase(error) {
+        switch (error.code) {
+            case "auth/email-already-in-use": mostrarToast("E-mail em uso."); break;
+            case "auth/invalid-credential": mostrarToast("Credenciais incorretas."); break;
+            case "auth/weak-password": mostrarToast("Senha fraca (mínimo 6 dígitos)."); break;
+            default: mostrarToast("Erro na operação.");
+        }
+    }
+
     initApp();
 });
