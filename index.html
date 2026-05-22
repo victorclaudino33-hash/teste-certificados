@@ -1360,4 +1360,44 @@
       // Proporção matemática entre o tamanho PostScript original e a escala do viewport atual
       const f = scale;
 
-      // 2.
+      // 2. Injetar Texto Dinâmico Dinamicamente
+      ctx.fillStyle = appState.corTexto;
+      ctx.textAlign = 'center';
+
+      // Nome do Aluno
+      const posY_nome = parseInt(document.getElementById('scaleY_nome').value);
+      ctx.font = `600 ${26 * f}px 'Syne', sans-serif`;
+      ctx.fillText(aluno.nome.toUpperCase(), (viewport.width / 2), posY_nome * f);
+
+      // Bloco de Metadados / Texto de Conclusão
+      const posY_meta = parseInt(document.getElementById('scaleY_meta').value);
+      ctx.font = `400 ${11 * f}px 'DM Sans', sans-serif`;
+      ctx.fillStyle = appState.corTexto + "cc"; // 80% opacidade no meta
+      
+      let textoMeta = `Concluiu com êxito o curso de especialização profissional em ${appState.cursoAtivo}`;
+      if(aluno.empresa) textoMeta += ` corporativo para a organização ${aluno.empresa}`;
+      if(aluno.data) textoMeta += ` realizado em ${aluno.data}`;
+      if(aluno.cpf) textoMeta += `, portador do documento de identificação CPF nº ${aluno.cpf}.`;
+
+      ctx.fillText(textoMeta, (viewport.width / 2), posY_meta * f);
+
+      // 3. Sobrepor Assinatura Digital PNG se ativa
+      if(appState.assinaturaImgElement) {
+        const posY_assin = parseInt(document.getElementById('scaleY_assin').value);
+        const imgW = 120 * f;
+        const imgH = 50 * f;
+        ctx.drawImage(appState.assinaturaImgElement, (viewport.width / 2) - (imgW / 2), posY_assin * f, imgW, imgH);
+      }
+      
+      // Aplicar transformações de zoom de interface se necessário
+      canvas.style.transform = appState.isZoomClique ? `scale(${appState.canvasZoom * 1.4})` : `scale(${appState.canvasZoom})`;
+    }
+
+    /* ── CONTROLES DE INTERFACE E TRABALHO DE NAVEGAÇÃO ── */
+    function navegarAluno(direcao) {
+      if(appState.listaAlunos.length === 0) return;
+      appState.alunoIndexAtivo += direcao;
+      if(appState.alunoIndexAtivo < 0) appState.alunoIndexAtivo = appState.listaAlunos.length - 1;
+      if(appState.alunoIndexAtivo >= appState.listaAlunos.length) appState.alunoIndexAtivo = 0;
+      re-renderizarPreviewAluno();
+    }
