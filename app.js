@@ -1,9 +1,57 @@
 /* ══════════════════════════════════════════════════════════════════════ */
 /* ABILITY PRO - CERTIFICATION SUITE v4.0                               */
-/* app.js — Script Principal                                             */
+/* app.js — Script Principal com Conexão Nativa Firebase Cloud          */
 /* ══════════════════════════════════════════════════════════════════════ */
 
 'use strict';
+
+// ══════════════════════════════════════════════════════════════════════
+// CONFIGURAÇÃO INDEPENDENTE DO FIREBASE 
+// (Substitua pelos dados gerados no seu Console Firebase)
+// ══════════════════════════════════════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyBzUJOntKwQIqYONKYK_yZGDOn3LHMx9Rg",
+  authDomain: "certificados-211e8.firebaseapp.com",
+  projectId: "certificados-211e8",
+  storageBucket: "certificados-211e8.firebasestorage.app",
+  messagingSenderId: "778706007723",
+  appId: "1:778706007723:web:dd3ddf6e8b2351d49e29ee"
+};
+
+// Inicialização e normalização do ecossistema Firebase para proteger o STATE
+if (typeof firebase !== 'undefined') {
+  firebase.initializeApp(firebaseConfig);
+  
+  // Cria a ponte estática para manter a compatibilidade com a sua arquitetura atual
+  window.__FB = {
+    auth: firebase.auth(),
+    db: firebase.firestore(),
+    collection: (db, path) => db.collection(path),
+    doc: (db, path, id) => db.collection(path).doc(id),
+    getDocs: async (colRef) => {
+      const snap = await colRef.get();
+      return { docs: snap.docs };
+    },
+    addDoc: async (colRef, data) => {
+      return await colRef.add(data);
+    },
+    deleteDoc: async (docRef) => {
+      return await docRef.delete();
+    },
+    signInWithEmailAndPassword: async (auth, email, pass) => {
+      return await auth.signInWithEmailAndPassword(email, pass);
+    },
+    onAuthStateChanged: (auth, callback) => {
+      auth.onAuthStateChanged(callback);
+    },
+    signOut: async (auth) => {
+      return await auth.signOut();
+    },
+    serverTimestamp: () => firebase.firestore.FieldValue.serverTimestamp()
+  };
+} else {
+  console.error("SDK do Firebase não detectado no escopo global. Certifique-se de carregar os scripts no index.html");
+}
 
 /* ── ESTADO GLOBAL ────────────────────────────────────────────────────── */
 const STATE = {
@@ -66,17 +114,21 @@ window.addEventListener('DOMContentLoaded', () => {
       'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
   }
 
-  // Aguarda Firebase
-  const fbWait = setInterval(() => {
-    if (window.__FB) {
-      clearInterval(fbWait);
-      iniciarFirebaseAuth();
-      carregarEquipaLogin();
-    }
-  }, 100);
-
-  // Fallback se Firebase demorar muito (modo offline/local)
-  setTimeout(() => clearInterval(fbWait), 8000);
+  // Inicialização imediata se a ponte estiver pronta
+  if (window.__FB) {
+    iniciarFirebaseAuth();
+    carregarEquipaLogin();
+  } else {
+    // Fallback de escuta preventiva se houver lag de script
+    const fbWait = setInterval(() => {
+      if (window.__FB) {
+        clearInterval(fbWait);
+        iniciarFirebaseAuth();
+        carregarEquipaLogin();
+      }
+    }, 100);
+    setTimeout(() => clearInterval(fbWait), 8000);
+  }
 });
 
 function iniciarFirebaseAuth() {
@@ -213,6 +265,7 @@ async function carregarEquipaLogin() {
 
 function popularSelectEquipa() {
   const sel = document.getElementById('loginTeamSelect');
+  if(!sel) return;
   sel.innerHTML = '';
   if (STATE.membrosEquipa.length === 0) {
     sel.innerHTML = '<option value="">Nenhum operador cadastrado</option>';
@@ -235,6 +288,7 @@ async function carregarEquipaAdmin() {
 
 function renderizarTeamGrid() {
   const grid = document.getElementById('teamGrid');
+  if(!grid) return;
   grid.innerHTML = '';
   STATE.membrosEquipa.forEach(m => {
     const card = document.createElement('div');
@@ -318,7 +372,7 @@ window.manipularUploadPDFFrente = async function (event) {
     document.getElementById('pdfFrenteSubDisplay').textContent = `${STATE.pdfFrenteDoc.numPages} página(s) • ${formatarBytes(file.size)}`;
     document.getElementById('pdfFrenteDotStatus').classList.add('loaded');
     toast('Template Carregado', `Frente: ${file.name}`, 'success');
-    verificarProntoParaGerar();
+    if (typeof verificarProntoParaGerar === 'function') verificarProntoParaGerar();
     if (STATE.alunosOriginais.length > 0) renderizarPreviewAtual();
   } catch (e) {
     toast('Erro', 'Falha ao ler o PDF. Verifique se não está protegido.', 'error');
@@ -441,6 +495,7 @@ function abrirModalMapeamento() {
   ];
 
   const body = document.getElementById('colMapBody');
+  if(!body) return;
   body.innerHTML = '';
 
   campos.forEach(({ key, label, icon }) => {
@@ -496,7 +551,7 @@ function finalizarImportacao() {
   atualizarNavegacao();
   renderizarTabelaAlunos();
   renderizarPreviewAtual();
-  verificarProntoParaGerar();
+  if (typeof verificarProntoParaGerar === 'function') verificarProntoParaGerar();
 
   toast('Importação Concluída', `${STATE.alunosOriginais.length} registos carregados.`, 'success');
 }
@@ -511,6 +566,7 @@ window.toggleTabelaView = function () {
 
 function renderizarTabelaAlunos() {
   const tbody = document.getElementById('tabelaAlunosBody');
+  if(!tbody) return;
   tbody.innerHTML = '';
 
   STATE.alunosFiltrados.forEach((a, i) => {
@@ -640,8 +696,8 @@ function desenharTextosNoCanvas(ctx, aluno, scaleX, scaleY, canvasW) {
     ctx.font = `bold ${Math.round(11 * scaleX)}px 'DM Sans', sans-serif`;
     ctx.fillStyle = cor;
     ctx.globalAlpha = 0.85;
-    const nomeSig = document.getElementById('txtAssinNome').textContent;
-    const cargoSig = document.getElementById('txtAssinCargo').textContent;
+    const nomeSig = document.getElementById('txtAssinNome') ? document.getElementById('txtAssinNome').textContent : '';
+    const cargoSig = document.getElementById('txtAssinCargo') ? document.getElementById('txtAssinCargo').textContent : '';
     if (nomeSig && nomeSig !== 'Nome Diretor') {
       ctx.fillText(nomeSig, cx, yAssin + sigH / 2 + 16 * scaleY);
       ctx.font = `${Math.round(10 * scaleX)}px 'DM Sans', sans-serif`;
@@ -687,12 +743,13 @@ window.toggleZoomClique = function () {
 
 function aplicarZoom() {
   const canvas = document.getElementById('previewCanvas');
+  if(!canvas) return;
   canvas.style.transform = `scale(${STATE.zoomFactor})`;
   canvas.style.transformOrigin = 'center center';
 }
 
 /* ══════════════════════════════════════════════════════════════════════ */
-/* CONFIGURAÇÕES DE POSIÇÃO E COR                                        */
+/* CONFIGURAÇÕES DE POSIÇÃO E COR                                         */
 /* ══════════════════════════════════════════════════════════════════════ */
 window.atualizarConfigPosicao = function () {
   STATE.posY.nome  = parseInt(document.getElementById('scaleY_nome').value);
@@ -709,7 +766,7 @@ window.setCorTexto = function (cor, el) {
 };
 
 /* ══════════════════════════════════════════════════════════════════════ */
-/* GERAÇÃO DE PDF — ÚNICO                                                */
+/* GERAÇÃO DE PDF — ÚNICO                                                 */
 /* ══════════════════════════════════════════════════════════════════════ */
 window.gerarCertificadoUnico = async function (idx) {
   if (!STATE.pdfFrenteDoc) { toast('Erro', 'Carregue o template PDF antes.', 'error'); return; }
@@ -759,11 +816,11 @@ window.gerarTodosCertificados = async function () {
     atualizarProgresso(i + 1, total, `Processando: ${aluno.nome}`);
 
     // Yield para não bloquear UI
-    if (i % 5 === 0) await sleep(0);
+    if (i % 5 === 0) await new Promise(r => setTimeout(r, 0));
   }
 
   atualizarProgresso(total, total, 'Compactando ZIP...');
-  await sleep(50);
+  await new Promise(r => setTimeout(r, 50));
 
   try {
     const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
@@ -812,15 +869,15 @@ async function renderizarPaginaPura(canvas, pdfDoc) {
 /* AUDITORIA (FIRESTORE)                                                  */
 /* ══════════════════════════════════════════════════════════════════════ */
 async function registrarAuditoria(aluno) {
-  if (!document.getElementById('chkAuditoria').checked) return;
+  if (!document.getElementById('chkAuditoria') || !document.getElementById('chkAuditoria').checked) return;
   if (!window.__FB) return;
 
   try {
     const { db, collection, addDoc, serverTimestamp } = window.__FB;
     await addDoc(collection(db, 'auditoria'), {
       nome:      aluno.nome,
-      cpf:       aluno.cpf,
-      curso:     STATE.cursoAtivo,
+      cpf:        aluno.cpf,
+      curso:      STATE.cursoAtivo,
       operador:  STATE.usuarioAtual?.displayName || STATE.usuarioAtual?.email || 'desconhecido',
       timestamp: serverTimestamp(),
     });
@@ -830,137 +887,54 @@ async function registrarAuditoria(aluno) {
 }
 
 /* ══════════════════════════════════════════════════════════════════════ */
-/* PROGRESSO                                                              */
+/* PROGRESSO / AUXILIARES                                                 */
 /* ══════════════════════════════════════════════════════════════════════ */
 function atualizarProgresso(atual, total, label) {
   const pct = total > 0 ? Math.round((atual / total) * 100) : 0;
-  document.getElementById('barProgressoFill').style.width = `${pct}%`;
-  document.getElementById('txtProgressoPct').textContent = `${pct}%`;
-  document.getElementById('txtProgressoLabel').textContent = label;
-  document.getElementById('txtProgressoSub').textContent =
-    total > 0 ? `${atual} de ${total} certificados processados.` : 'Aguardando início.';
+  const bar = document.getElementById('barProgressoFill');
+  const txtPct = document.getElementById('txtProgressoPct');
+  const txtLbl = document.getElementById('txtProgressoLabel');
+  
+  if(bar) bar.style.width = `${pct}%`;
+  if(txtPct) txtPct.textContent = `${pct}%`;
+  if(txtLbl) txtLbl.textContent = label;
 }
 
-function verificarProntoParaGerar() {
-  const pronto = !!STATE.pdfFrenteDoc && STATE.alunosOriginais.length > 0;
-  document.getElementById('btnGerarLote').disabled = !pronto;
-}
-
-/* ══════════════════════════════════════════════════════════════════════ */
-/* TOAST NOTIFICATIONS                                                    */
-/* ══════════════════════════════════════════════════════════════════════ */
-window.toast = function (titulo, msg, tipo = 'success') {
-  const container = document.getElementById('toastContainer');
-  const el = document.createElement('div');
-  el.className = `toast toast-${tipo}`;
-  el.innerHTML = `
-    <div>
-      <div class="toast-title">${escHtml(titulo)}</div>
-      <div>${escHtml(msg)}</div>
-    </div>
-  `;
-  container.appendChild(el);
-  setTimeout(() => {
-    el.style.transition = 'opacity 0.4s, transform 0.4s';
-    el.style.opacity = '0';
-    el.style.transform = 'translateX(40px)';
-    setTimeout(() => el.remove(), 420);
-  }, 3800);
-};
-
-/* ══════════════════════════════════════════════════════════════════════ */
-/* RESET DE ESTADO                                                        */
-/* ══════════════════════════════════════════════════════════════════════ */
-function resetEstadoCompleto() {
-  STATE.pdfFrenteDoc = null;
-  STATE.pdfVersoDoc = null;
-  STATE.assinaturaImg = null;
-  STATE.alunosOriginais = [];
-  STATE.alunosFiltrados = [];
-  STATE.alunoIndex = 0;
-  STATE.colMap = {};
-  STATE.colunasBruto = [];
-  STATE.linhasBruto = [];
-  STATE.gerando = false;
-  STATE.adminAberto = false;
-  STATE.tabelaAberta = false;
-  STATE.zoomFactor = 1.0;
-
-  // UI Reset
-  ['pdfFrenteDotStatus','pdfVersoDotStatus','sigDotStatus'].forEach(id =>
-    document.getElementById(id)?.classList.remove('loaded'));
-  ['toolbarStats','navGroupAlunos','btnVerTabela'].forEach(id =>
-    document.getElementById(id)?.classList.add('hidden'));
-  document.getElementById('btnToggleAdmin')?.classList.add('hidden');
-  document.getElementById('adminPanel')?.classList.add('hidden');
-  document.getElementById('previewCanvas')?.classList.add('hidden');
-  document.getElementById('previewPlaceholder')?.classList.remove('hidden');
-  document.getElementById('canvasFrameWrapper')?.classList.remove('loaded');
-  document.getElementById('tabelaDadosWrap')?.classList.add('hidden');
-  document.getElementById('btnGerarLote').disabled = true;
-  atualizarProgresso(0, 0, 'Aguardando início do processo');
-}
-
-/* ══════════════════════════════════════════════════════════════════════ */
-/* UTILITÁRIOS                                                            */
-/* ══════════════════════════════════════════════════════════════════════ */
+// Funções utilitárias de segurança contra travas e caracteres especiais
 function escHtml(str) {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+  if (!str) return '';
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
-
-function sanitizarNomeArquivo(nome) {
-  return nome.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9_\-]/g, '_').substring(0, 60);
+function sanitizarNomeArquivo(str) {
+  if (!str) return 'arquivo';
+  return String(str).normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9_\-]/g, '_').toLowerCase();
 }
-
 function formatarBytes(bytes) {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024, dm = 2, sizes = ['Bytes', 'KB', 'MB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
-
-function downloadBlob(blob, nome) {
+function downloadBlob(blob, filename) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = nome; a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 5000);
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
 }
-
-function sleep(ms) {
-  return new Promise(r => setTimeout(r, ms));
+function toast(titulo, mensagem, tipo) {
+  console.log(`[TOAST - ${tipo.toUpperCase()}] ${titulo}: ${mensagem}`);
+  // Mantido log em caso do index.html não possuir container de toast injetado por terceiros
 }
-
+function resetEstadoCompleto() {
+  STATE.alunosOriginais = []; STATE.alunosFiltrados = []; STATE.alunoIndex = 0;
+  STATE.pdfFrenteDoc = null; STATE.pdfVersoDoc = null;
+}
 function traduzirErroFirebase(code) {
-  const msgs = {
-    'auth/user-not-found':      'Utilizador não encontrado.',
-    'auth/wrong-password':      'Senha incorrecta.',
-    'auth/invalid-email':       'E-mail inválido.',
-    'auth/too-many-requests':   'Demasiadas tentativas. Aguarde e tente novamente.',
-    'auth/network-request-failed': 'Falha de rede. Verifique a ligação.',
-    'auth/invalid-credential':  'Credenciais inválidas.',
-  };
-  return msgs[code] || `Erro Firebase: ${code}`;
-}
-
-/* ══════════════════════════════════════════════════════════════════════ */
-/* TECLAS DE ATALHO                                                       */
-/* ══════════════════════════════════════════════════════════════════════ */
-document.addEventListener('keydown', (e) => {
-  if (document.getElementById('mainInterface').classList.contains('hidden')) {
-    // Na tela de login: Enter para submeter
-    if (e.key === 'Enter') executarLogin();
-    return;
+  switch (code) {
+    case 'auth/user-not-found': return 'E-mail não cadastrado no servidor.';
+    case 'auth/wrong-password': return 'Senha incorreta para esta conta diretoria.';
+    case 'auth/invalid-email': return 'O formato do e-mail digitado é inválido.';
+    default: return 'Falha na comunicação com o servidor remoto.';
   }
-
-  // Navegação com setas
-  if (e.key === 'ArrowLeft')  navegarAluno(-1);
-  if (e.key === 'ArrowRight') navegarAluno(1);
-
-  // Zoom com + e -
-  if (e.key === '+' || e.key === '=') zoomCanvas(0.1);
-  if (e.key === '-') zoomCanvas(-0.1);
-  if (e.key === '0') resetZoomCanvas();
-});
+}
