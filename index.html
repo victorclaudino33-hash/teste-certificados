@@ -12,50 +12,13 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
   <link rel="stylesheet" href="style.css">
-
-  <script type="module" src="script.js"></script>
 </head>
 <body>
-   <section <div class="login-form-panel">
-  <h2 class="login-form-title">Painel de Controle</h2>
-  <p class="login-form-sub">Gerencie acessos e emissões</p>
 
-  <!-- ABAS (Corrigidas sem o onclick antigo) -->
-  <div class="login-tabs">
-    <button id="tabLogin" class="ltab active" type="button">Entrar</button>
-    <button id="tabRegister" class="ltab" type="button">Cadastrar</button>
-  </div>
-
-  <!-- CAMPOS -->
-  <div class="login-fields">
-    <div class="field-wrap">
-      <label class="field-label">E-mail</label>
-      <input type="email" id="emailField" class="field" placeholder="seu@email.com" required>
-    </div>
-    
-    <div class="field-wrap">
-      <label class="field-label">Senha</label>
-      <input type="password" id="passwordField" class="field" placeholder="••••••••" required>
-    </div>
-
-    <button class="login-btn" type="submit">Entrar na Conta</button>
-  </div>
-</div>
-
-<!-- Container para os Toasts (Coloque logo antes de fechar a tag </body>) -->
-<div class="toast-container"></div>
-
-<!-- Scripts de Inicialização (v10) -->
-<script type="importmap">
-  {
-    "imports": {
-      "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
-      "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js",
-      "firebase/firestore": "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"
-    }
-  }
-</script>
-<script type="module" src="script.js"></script>
+  <section id="loginSection" class="login-wrapper">
+    <div class="login-container">
+      
+      <div class="login-brand-panel">
         <div>
           <div class="brand-logo">ABILITY<span>.PRO</span></div>
           <div class="brand-tagline">Certificação v4.0</div>
@@ -65,7 +28,7 @@
             <div class="brand-feature-icon">✓</div>
             <div class="brand-feature-text">
               <strong>Emissão em Massa</strong>
-              <span>Gere centenas de certificados de uma vez.</span>
+              <span>Gere centenas de certificados de uma vez com o Firebase.</span>
             </div>
           </div>
         </div>
@@ -73,33 +36,30 @@
       </div>
 
       <div class="login-form-panel">
-        <h1 class="login-form-title">Acessar Sistema</h1>
-        <p class="login-form-sub">Identifique-se para gerenciar os certificados.</p>
-        
+        <h2 class="login-form-title">Painel de Controle</h2>
+        <p class="login-form-sub">Gerencie acessos e emissões</p>
+
         <div class="login-tabs">
-          <button class="ltab active" id="tabColab">Colaborador</button>
-          <button class="ltab" id="tabAdmin">Administrador</button>
+          <button id="tabLogin" class="ltab active" type="button">Entrar</button>
+          <button id="tabRegister" class="ltab" type="button">Cadastrar</button>
         </div>
 
         <div class="login-fields">
-          <div class="field-wrap" id="adminUserWrap" style="display:none">
-            <label class="field-label">Usuário Admin</label>
-            <input type="text" id="loginUser" class="field" placeholder="ex: admin">
-          </div>
-          <div class="field-wrap" id="colabSelectWrap">
-            <label class="field-label">Selecione seu Nome</label>
-            <select id="loginColabSelect" class="field">
-              <option value="">Carregando equipe...</option>
-            </select>
-          </div>
           <div class="field-wrap">
-            <label class="field-label">Senha de Acesso</label>
-            <input type="password" id="loginPass" class="field" placeholder="••••••••">
+            <label class="field-label">E-mail</label>
+            <input type="email" id="emailField" class="field" placeholder="seu@email.com" required>
           </div>
-          <button class="login-btn" id="btnLogin">Entrar no Sistema</button>
+          
+          <div class="field-wrap">
+            <label class="field-label">Senha</label>
+            <input type="password" id="passwordField" class="field" placeholder="••••••••" required>
+          </div>
+
+          <button class="login-btn" id="btnLogin" type="button">Entrar na Conta</button>
         </div>
         <p class="fb-hint">Autenticação segura via <code>Firebase Auth</code></p>
       </div>
+
     </div>
   </section>
 
@@ -120,16 +80,9 @@
       <div class="admin-inner">
         <div>
           <h3 class="admin-title">Gerenciamento de Equipe</h3>
-          <p class="admin-sub">Cadastre novos colaboradores e defina suas respectivas senhas.</p>
-        </div>
-        <div class="admin-form">
-          <input type="text" id="newColabName" class="admin-input" placeholder="Nome do Colaborador">
-          <input type="text" id="newColabPass" class="admin-input" placeholder="Senha (min. 4 dig)">
-          <button class="btn-green" id="btnAddColab">Adicionar</button>
+          <p class="admin-sub">Usuários administradores autenticados via nuvem.</p>
         </div>
       </div>
-      <div class="team-grid" id="teamGrid">
-        </div>
     </div>
 
     <div class="app-body">
@@ -137,33 +90,24 @@
         <div class="sb-section">
           <div class="sb-label">1. Selecione o Curso</div>
           <div class="course-grid">
-            <button class="cbtn active" data-curso="fsl">FSL</button>
-            <button class="cbtn" data-curso="pdm">PDM</button>
-            <button class="cbtn" data-curso="fof">FOF</button>
-            <button class="cbtn" data-curso="sol">SOL</button>
+            <button class="cbtn active" data-curso="ALL">TODOS</button>
+            <button class="cbtn" data-curso="DEV">DEV</button>
+            <button class="cbtn" data-curso="DESIGN">DESIGN</button>
+            <button class="cbtn" data-curso="DATA">DATA</button>
           </div>
         </div>
 
         <div class="sb-section">
-          <div class="sb-label">2. Modelos Base (PDF)</div>
+          <div class="sb-label">2. Carga de Dados Externos</div>
           <div class="pdf-list">
             <label class="pdf-item">
-              <input type="file" id="fileFrente" accept="application/pdf">
-              <div class="pdf-icon-wrap">PDF</div>
+              <input type="file" id="csvUpload" accept=".csv" style="display:none">
+              <div class="pdf-icon-wrap">CSV</div>
               <div class="pdf-info">
-                <div class="pdf-name">Página da Frente</div>
-                <div class="pdf-sub" id="txtFrente">Nenhum arquivo...</div>
+                <div class="pdf-name">Lista de Alunos</div>
+                <div class="pdf-sub" id="txtFrente">Clique para carregar arquivo .csv</div>
               </div>
               <div class="pdf-dot" id="dotFrente"></div>
-            </label>
-            <label class="pdf-item">
-              <input type="file" id="fileVerso" accept="application/pdf">
-              <div class="pdf-icon-wrap">PDF</div>
-              <div class="pdf-info">
-                <div class="pdf-name">Página do Verso</div>
-                <div class="pdf-sub" id="txtVerso">Nenhum arquivo...</div>
-              </div>
-              <div class="pdf-dot" id="dotVerso"></div>
             </label>
           </div>
         </div>
@@ -171,7 +115,7 @@
         <div class="sb-section">
           <div class="sb-label">3. Assinatura Digital</div>
           <div class="assinatura-info">
-            <div class="assin-nome" id="assinNome">Carregando...</div>
+            <div class="assin-nome" id="assinNome">Auth Root Active</div>
             <div class="assin-cargo">Responsável pela Emissão</div>
           </div>
         </div>
@@ -181,14 +125,34 @@
         <div class="main-toolbar">
           <div class="stat-chips">
             <div class="stat-chip">
-              <div class="stat-num" id="statTotal">0</div>
-              <div class="stat-lbl">Alunos</div>
+              <div class="stat-num" id="statTotal">00</div>
+              <div class="stat-lbl">Atual</div>
             </div>
           </div>
-          <span class="stat-status" id="txtStatus">Aguardando importação de dados...</span>
+          <span class="stat-status" id="txtStatus">Aguardando login de administrador...</span>
           <div class="tb-spacer"></div>
-          <button class="tb-btn tb-blue" id="btnImportar">Importar Excel</button>
-          <input type="file" id="fileExcel" accept=".xlsx, .xls, .csv" style="display:none">
+          <button class="tb-btn tb-neutral" id="btnToggleTable">Ver Tabela</button>
+          <button class="tb-btn tb-blue" id="btnExportPDF">Exportar PNG</button>
+          <button class="tb-btn tb-green" id="btnExportAll">Exportar Lote</button>
+        </div>
+
+        <div id="tabelaWrap" class="tabela-wrap hidden">
+          <div style="padding: 15px; display: flex; justify-content: space-between; align-items: center; background: #111625;">
+            <input type="text" class="tabela-search" placeholder="Buscar aluno por nome..." style="background:#1a233a; border:1px solid #2d3b5e; color:#fff; padding:6px 12px; border-radius:4px;">
+            <button class="tabela-close" style="background:none; border:none; color:#ef4444; cursor:pointer;">Fechar X</button>
+          </div>
+          <table class="tabela" style="width: 100%; color: #fff; text-align: left; border-collapse: collapse;">
+            <thead>
+              <tr style="background: #161f33;">
+                <th style="padding:10px;">ID</th>
+                <th style="padding:10px;">Nome</th>
+                <th style="padding:10px;">Curso</th>
+                <th style="padding:10px;">Data</th>
+                <th style="padding:10px;">Ação</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
         </div>
 
         <div class="preview-area">
@@ -196,27 +160,39 @@
             <div class="placeholder" id="canvasPlaceholder">
               <div class="placeholder-icon">👁</div>
               <div class="placeholder-title">Visualizador do Certificado</div>
-              <p class="placeholder-hint">Carregue os PDFs base e importe a lista Excel para gerar a pré-visualização em tempo real.</p>
+              <p class="placeholder-hint">Carregue dados ou realize a autenticação para liberar o canvas.</p>
             </div>
-            <canvas id="previewCanvas" class="hidden"></canvas>
+            <canvas id="previewCanvas" class="hidden" style="max-width:100%; height:auto; border:1px solid #222e47;"></canvas>
           </div>
 
-          <div class="bottom-row">
-            <div class="progress-block">
-              <div class="prog-header">
-                <span class="prog-label">Progresso do Processamento</span>
-                <span class="prog-pct" id="progPct">0%</span>
+          <div class="bottom-row" style="margin-top: 20px;">
+            <div class="progress-block" style="flex: 1; margin-right: 20px;">
+              <div class="prog-header" style="display: flex; justify-content: space-between; color: #8494b8; margin-bottom: 5px;">
+                <span class="prog-sub">Fila de processamento limpa.</span>
+                <span class="prog-pct">0%</span>
               </div>
-              <div class="prog-track">
-                <div class="prog-fill" id="progFill"></div>
+              <div class="prog-track" style="background: #111625; height: 6px; border-radius: 3px; overflow: hidden;">
+                <div class="prog-fill" style="background: #dc2626; width: 0%; height: 100%; transition: width 0.3s;"></div>
               </div>
             </div>
-            <button class="gen-btn" id="btnEmitir" disabled>Emitir Certificados</button>
+            <button class="gen-btn" id="btnEmitir">Baixar Selecionado</button>
           </div>
         </div>
       </main>
     </div>
   </div>
 
+  <div class="toast-container"></div>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
+        "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js",
+        "firebase/firestore": "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"
+      }
+    }
+  </script>
+  <script type="module" src="script.js"></script>
 </body>
 </html>
