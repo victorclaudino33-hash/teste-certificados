@@ -513,10 +513,7 @@
 
     /* Steps placeholder */
     .placeholder-steps{display:flex;flex-direction:column;gap:6px;margin-top:4px}
-    .placeholder-step{
-      display:flex;align-items:center;gap:8px;
-      font-size:10px;color:var(--text4);
-    }
+    .placeholder-step{display:flex;align-items:center;gap:8px;font-size:10px;color:var(--text4)}
     .step-num{
       width:18px;height:18px;border-radius:50%;background:var(--surface4);border:1px solid var(--border2);
       display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;
@@ -535,7 +532,6 @@
       height:4px;border-radius:4px;width:0%;transition:width 0.3s var(--ease);
     }
     .prog-sub{font-size:9px;color:var(--text3);margin-top:6px}
-
     .gen-btn{
       display:inline-flex;align-items:center;gap:8px;
       background:var(--red);color:#fff;border:none;border-radius:var(--r-md);
@@ -560,693 +556,808 @@
       background:linear-gradient(90deg,var(--red) 0%,transparent 70%);opacity:0;transition:opacity 0.3s;
     }
     .dash-card:hover::before{opacity:1}
-    .dash-num{font-family:var(--font-display);font-size:30px;font-weight:800;color:var(--text);line-height:1;letter-spacing:-1.5px}
-    .dash-lbl{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-top:7px;font-family:var(--font-display)}
+    .dash-num{font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--text);letter-spacing:-1px;line-height:1.1}
+    .dash-lbl{font-size:11px;color:var(--text2);margin-top:4px}
+    .dash-icon{position:absolute;bottom:14px;right:14px;color:var(--text4);font-size:24px;pointer-events:none}
 
-    /* ── MODAL ── */
+    /* ── MODAL MAP COLUNAS ── */
     .modal-overlay{
-      position:fixed;inset:0;background:rgba(0,0,0,0.75);display:flex;
-      align-items:center;justify-content:center;z-index:9000;
-      padding:20px;animation:fadeIn 0.2s ease;backdrop-filter:blur(4px);
+      position:fixed;inset:0;background:rgba(2,4,8,0.85);backdrop-filter:blur(10px);
+      display:flex;align-items:center;justify-content:center;z-index:3000;
+      animation:fadeIn 0.25s var(--ease);padding:20px;
     }
     @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-    .modal-card{
+    .modal-box{
       background:var(--surface);border:1px solid var(--border3);border-radius:var(--r-xl);
-      padding:28px 28px 24px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;
-      animation:modalIn 0.25s var(--ease);box-shadow:0 30px 80px rgba(0,0,0,0.6);
+      width:100%;max-width:480px;box-shadow:0 30px 90px rgba(0,0,0,0.7);
+      animation:modalReveal 0.3s var(--ease);overflow:hidden;
     }
-    @keyframes modalIn{from{opacity:0;transform:translateY(16px) scale(0.97)}to{opacity:1;transform:translateY(0) scale(1)}}
-    .modal-title{font-family:var(--font-display);font-size:15px;font-weight:800;color:var(--text);margin-bottom:4px;letter-spacing:-0.5px}
-    .modal-sub{font-size:11px;color:var(--text3);margin-bottom:4px}
+    @keyframes modalReveal{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+    .modal-header{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:between}
+    .modal-title{font-family:var(--font-display);font-size:14px;font-weight:700;color:var(--text)}
+    .modal-body{padding:22px;display:flex;flex-direction:column;gap:14px}
+    .modal-footer{padding:14px 22px;background:var(--surface2);border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
 
-    /* ── TOAST ── */
-    #toastContainer{position:fixed;bottom:22px;right:22px;z-index:9999;display:flex;flex-direction:column;gap:7px;pointer-events:none}
+    /* Notificações Customizadas Toast */
+    .toast-container{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:8px;z-index:9999}
     .toast{
-      display:flex;align-items:center;gap:11px;background:var(--surface);border:1px solid var(--border3);
-      border-radius:var(--r-lg);padding:12px 16px;font-size:12px;font-weight:500;color:var(--text);
-      min-width:260px;max-width:360px;pointer-events:auto;
-      animation:toastIn 0.3s var(--ease) both;box-shadow:0 12px 40px rgba(0,0,0,0.4);
+      background:var(--surface2);border:1px solid var(--border3);border-radius:var(--r-md);
+      padding:12px 18px;min-width:280px;box-shadow:0 12px 32px rgba(0,0,0,0.5);
+      font-size:12px;color:var(--text2);display:flex;align-items:center;gap:10px;
+      animation:toastIn 0.3s var(--ease) both;
     }
-    .toast.error{border-color:var(--red-border);background:rgba(9,12,20,0.98)}
-    .toast.success{border-color:var(--green-border);background:rgba(9,12,20,0.98)}
-    @keyframes toastIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
-    .toast-icon{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-    .toast.error .toast-icon{background:var(--red-bright);box-shadow:0 0 8px rgba(239,68,68,0.6)}
-    .toast.success .toast-icon{background:var(--green-bright);box-shadow:0 0 8px rgba(34,197,94,0.6)}
+    @keyframes toastIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+    .toast-success{border-left:4px solid var(--green-bright)}
+    .toast-error{border-left:4px solid var(--red-bright)}
+    .toast-title{font-family:var(--font-display);font-weight:700;color:var(--text);margin-bottom:2px}
 
-    /* ── HISTORICO ── */
-    .hist-item{background:var(--surface);border:1px solid var(--border2);border-radius:var(--r-lg);padding:14px 16px;transition:border-color 0.2s}
-    .hist-item:hover{border-color:var(--border3)}
-
-    /* ── SCROLLBAR ── */
-    ::-webkit-scrollbar{width:4px;height:4px}
-    ::-webkit-scrollbar-track{background:transparent}
-    ::-webkit-scrollbar-thumb{background:var(--surface5);border-radius:4px}
-    ::-webkit-scrollbar-thumb:hover{background:var(--surface4)}
-
-    /* ── RESPONSIVE ── */
-    @media (max-width:1100px){
-      .login-split{flex-direction:column;max-width:460px;min-height:auto}
-      .login-brand{width:100%;padding:32px 32px 24px}
-      .login-brand::before{font-size:80px}
-      .brand-features{flex-direction:row;flex-wrap:wrap;gap:10px}
-    }
-    @media (max-width:900px){
-      .app-body{grid-template-columns:1fr}
-      .sidebar{display:none}
-      .dash-grid{grid-template-columns:repeat(2,1fr)}
-      .tabela-wrap{left:0}
-    }
+    /* Custom Switch Component */
+    .switch-wrap{display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-md);padding:10px 12px}
+    .switch-info{display:flex;flex-direction:column;gap:2px}
+    .switch-lbl{font-family:var(--font-display);font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px}
+    .switch-desc{font-size:9px;color:var(--text4)}
+    .switch{position:relative;display:inline-block;width:34px;height:20px;flex-shrink:0}
+    .switch input{opacity:0;width:0;height:0}
+    .slider{position:absolute;cursor:pointer;inset:0;background-color:var(--surface5);transition:.2s;border-radius:20px}
+    .slider:before{position:absolute;content:"";height:14px;width:14px;left:3px;bottom:3px;background-color:var(--text2);transition:.2s;border-radius:50%}
+    input:checked + .slider{background-color:var(--red)}
+    input:checked + .slider:before{transform:translateX(14px);background-color:#fff}
   </style>
 </head>
 <body>
 
-<!-- ═══ LOGIN ═══ -->
-<section id="loginSection">
-  <div class="login-split">
-    <!-- Brand panel -->
-    <div class="login-brand">
-      <div>
-        <div class="brand-logo">Ability<span>.</span></div>
-        <div class="brand-tagline">Certificação Profissional</div>
-        <div class="brand-features">
-          <div class="brand-feature">
-            <div class="brand-feature-icon">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+  <section id="loginSection">
+    <div class="login-split">
+      <div class="login-brand">
+        <div>
+          <div class="brand-logo">Ability<span>.</span></div>
+          <div class="brand-tagline">Certification Suite</div>
+          <div class="brand-features">
+            <div class="brand-feature">
+              <div class="brand-feature-icon">⚡</div>
+              <div class="brand-feature-text">
+                <strong>Geração Ultrarápida</strong>
+                <span>Renderização e compilação em alta performance.</span>
+              </div>
             </div>
-            <div class="brand-feature-text">
-              <strong>Geração em lote</strong>
-              <span>Processe centenas de certificados de uma só vez</span>
-            </div>
-          </div>
-          <div class="brand-feature">
-            <div class="brand-feature-icon">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            </div>
-            <div class="brand-feature-text">
-              <strong>Múltiplos cursos</strong>
-              <span>NR10, NR35, SEP, NR06 e muito mais</span>
-            </div>
-          </div>
-          <div class="brand-feature">
-            <div class="brand-feature-icon">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            </div>
-            <div class="brand-feature-text">
-              <strong>Assinaturas dinâmicas</strong>
-              <span>Instrutor por treinamento com logo e registro</span>
+            <div class="brand-feature">
+              <div class="brand-feature-icon">🎯</div>
+              <div class="brand-feature-text">
+                <strong>Mapeamento Automático</strong>
+                <span>Inteligência artificial para pareamento de planilhas.</span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-      <div class="brand-footer">Ability Pro v4.0 — Sistema interno</div>
-    </div>
-
-    <!-- Form panel -->
-    <div class="login-form-panel">
-      <div class="login-form-title">Bem-vindo de volta</div>
-      <div class="login-form-sub">Acesse o painel de certificação</div>
-
-      <div class="login-tabs">
-        <button class="ltab active" id="tabLocal" onclick="switchLoginTab('local')">Login Local</button>
-        <button class="ltab" id="tabFirebase" onclick="switchLoginTab('firebase')">☁ Firebase</button>
+        <div class="brand-footer">Ability Pro © 2026 • v4.0</div>
       </div>
 
-      <div id="loginLocal" class="login-fields">
-        <div class="field-wrap">
-          <label class="field-label">Usuário</label>
-          <input type="text" id="userInput" class="field" placeholder="Digite seu usuário" autocomplete="username">
+      <div class="login-form-panel">
+        <div class="login-form-title">Autenticação</div>
+        <div class="login-form-sub">Aceda ao ecossistema seguro da Ability Pro.</div>
+
+        <div class="login-tabs">
+          <button class="ltab active" id="btnTabMaster" onclick="setLoginTab('master')">Acesso Diretor</button>
+          <button class="ltab" id="btnTabTeam" onclick="setLoginTab('team')">Acesso Equipa</button>
         </div>
-        <div class="field-wrap">
-          <label class="field-label">Senha</label>
-          <input type="password" id="passInput" class="field" placeholder="••••••••" autocomplete="current-password"
-            onkeydown="if(event.key==='Enter') validarLogin()">
-        </div>
-        <button class="login-btn" onclick="validarLogin()">
-          <span>Entrar no painel</span>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </button>
-      </div>
 
-      <div id="loginFirebase" class="login-fields hidden">
-        <div class="field-wrap">
-          <label class="field-label">E-mail</label>
-          <input type="email" id="fbEmail" class="field" placeholder="email@empresa.com" autocomplete="email">
-        </div>
-        <div class="field-wrap">
-          <label class="field-label">Senha</label>
-          <input type="password" id="fbPass" class="field" placeholder="••••••••"
-            onkeydown="if(event.key==='Enter') validarLoginFirebase()">
-        </div>
-        <button class="login-btn" onclick="validarLoginFirebase()">
-          <span>Entrar com Firebase</span>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </button>
-        <div class="fb-hint">Configure em <code>index.html → firebaseConfig</code></div>
-      </div>
-      <div class="login-footer-note">Ability Pro v4.0 — Sistema interno de certificação</div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══ APP ═══ -->
-<div id="mainInterface" class="hidden">
-
-  <!-- TOPBAR -->
-  <header class="topbar">
-    <div class="topbar-brand">
-      <div class="topbar-logo">Ability<span>Pro</span></div>
-      <div class="topbar-divider"></div>
-      <div id="userBadge" class="badge badge-neutral">OP: ---</div>
-      <div id="syncBadge" class="badge badge-blue hidden" title="Sincronizado com Firebase">☁ Sync</div>
-    </div>
-    <div class="topbar-actions">
-      <button class="badge badge-blue" onclick="toggleAba('historico')" id="btnHistorico" style="display:none">
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        Histórico
-      </button>
-      <button class="badge badge-blue" onclick="toggleAba('dashboard')" id="btnDashboard" style="display:none">
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-        Dashboard
-      </button>
-      <button id="adminBtn" class="badge badge-blue hidden" onclick="toggleAdmin()">
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg>
-        Equipe
-      </button>
-      <button class="btn-exit" onclick="fazerLogout()">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
-        Sair
-      </button>
-    </div>
-  </header>
-
-  <!-- ADMIN PANEL -->
-  <div id="adminPanel" class="admin-panel hidden">
-    <div class="admin-inner">
-      <div>
-        <div class="admin-title">Administração de acessos</div>
-        <div class="admin-sub">Gerencie contas de colaboradores</div>
-      </div>
-      <div class="admin-form">
-        <input type="text" id="newUserName" class="admin-input" placeholder="Nome do colaborador">
-        <input type="text" id="newUserPass" class="admin-input" placeholder="Senha">
-        <button class="btn-green" onclick="adicionarColaborador()">+ Adicionar</button>
-      </div>
-    </div>
-    <div id="listaEquipe" class="team-grid"></div>
-  </div>
-
-  <!-- BODY -->
-  <div class="app-body" id="abaGeracao">
-
-    <!-- ─── SIDEBAR ─── -->
-    <aside class="sidebar">
-
-      <div class="sb-section">
-        <div class="sb-label">Treinamento ativo</div>
-        <div id="slotContainer" class="course-grid"></div>
-      </div>
-
-      <div class="sb-section">
-        <div class="sb-label">Modelo do certificado</div>
-        <div class="pdf-list">
-          <div class="pdf-item" onclick="document.getElementById('frentePDF').click()" role="button">
-            <div class="pdf-icon-wrap">
-              <svg width="11" height="13" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v20a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            </div>
-            <div class="pdf-info">
-              <div class="pdf-name">Frente</div>
-              <div class="pdf-sub" id="labelFrente">Clique para carregar</div>
-            </div>
-            <div class="pdf-dot" id="dotFrente"></div>
+        <div class="login-fields">
+          <div class="field-wrap" id="wrapEmail">
+            <div class="field-label">E-mail Corporativo</div>
+            <input type="email" id="loginEmail" class="field" placeholder="exemplo@ability.com">
           </div>
-          <input type="file" id="frentePDF" accept=".pdf" onchange="processarPDF(this,'frente')">
-
-          <div class="pdf-item" onclick="document.getElementById('versoPDF').click()" role="button">
-            <div class="pdf-icon-wrap">
-              <svg width="11" height="13" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v20a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            </div>
-            <div class="pdf-info">
-              <div class="pdf-name">Verso</div>
-              <div class="pdf-sub" id="labelVerso">Clique para carregar</div>
-            </div>
-            <div class="pdf-dot" id="dotVerso"></div>
+          <div class="field-wrap" id="wrapTeamUser" style="display:none">
+            <div class="field-label">Selecionar Operador</div>
+            <select id="loginTeamSelect" class="field"><option value="">Carregando equipa...</option></select>
           </div>
-          <input type="file" id="versoPDF" accept=".pdf" onchange="processarPDF(this,'verso')">
+          <div class="field-wrap">
+            <div class="field-label">Palavra-passe</div>
+            <input type="password" id="loginPassword" class="field" placeholder="••••••••">
+          </div>
+          <button class="login-btn" onclick="executarLogin()">Entrar no Sistema</button>
+          <div class="fb-hint" id="loginHint">Utilize as credenciais atribuídas pelo administrador.</div>
         </div>
       </div>
+    </div>
+  </section>
 
-      <div class="sb-section">
-        <div class="sb-label">Assinatura do instrutor</div>
-        <div class="assinatura-info">
-          <div class="assin-nome" id="assinNome">Sem assinatura</div>
-          <div class="assin-cargo" id="assinCargo">Configure no painel admin</div>
+  <section id="mainInterface" class="hidden">
+    <div class="topbar">
+      <div class="topbar-brand">
+        <div class="topbar-logo">Ability<span>Pro</span></div>
+        <div class="topbar-divider"></div>
+        <div class="badge badge-neutral" id="userRoleBadge">Operador</div>
+        <div class="badge badge-blue hidden" id="btnToggleAdmin" onclick="toggleAdminPanel()">Painel de Controlo</div>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn-exit" onclick="executarLogout()">Sair</button>
+      </div>
+    </div>
+
+    <div class="admin-panel hidden" id="adminPanel">
+      <div class="admin-inner">
+        <div>
+          <div class="admin-title">Gestão de Utilizadores da Equipa</div>
+          <div class="admin-sub">Crie contas secundárias com palavras-passe simples para a sua equipa.</div>
         </div>
-        <div style="display:flex;gap:5px;margin-top:8px">
-          <button class="tb-btn tb-blue" style="flex:1;font-size:9px;padding:6px 8px" onclick="toggleAssinaturas()">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            Gerenciar
-          </button>
+        <div class="admin-form">
+          <input type="text" id="newTeamName" class="admin-input" placeholder="Nome do membro">
+          <input type="text" id="newTeamPass" class="admin-input" placeholder="Senha simples">
+          <button class="btn-green" onclick="adicionarMembroEquipa()">Adicionar</button>
         </div>
       </div>
+      <div class="team-grid" id="teamGrid"></div>
+    </div>
 
-      <div class="sb-section">
-        <div class="sb-label">Cor do texto</div>
-        <div class="color-row">
-          <div class="color-swatch active" data-color="#000000" style="background:#000000" onclick="selecionarCor(this)" title="Preto"></div>
-          <div class="color-swatch" data-color="#ffffff" style="background:#ffffff" onclick="selecionarCor(this)" title="Branco"></div>
-          <div class="color-swatch" data-color="#1e3a8a" style="background:#1e3a8a" onclick="selecionarCor(this)" title="Azul escuro"></div>
-          <div class="color-swatch" data-color="#7c3aed" style="background:#7c3aed" onclick="selecionarCor(this)" title="Roxo"></div>
-          <div class="color-swatch" data-color="#b45309" style="background:#b45309" onclick="selecionarCor(this)" title="Dourado"></div>
-          <input type="color" id="corPersonalizada" value="#000000" title="Cor personalizada"
-            oninput="corTexto=this.value; ajusteReal()"
-            style="width:26px;height:26px;border-radius:5px;border:1px solid var(--border2);background:var(--surface3);cursor:pointer;padding:2px;">
+    <div class="app-body">
+      <aside class="sidebar">
+        <div class="sb-section">
+          <div class="sb-label">Código do Curso</div>
+          <div class="course-grid">
+            <button class="cbtn active" onclick="setCurso('FSD')">FSD</button>
+            <button class="cbtn" onclick="setCurso('FED')">FED</button>
+            <button class="cbtn" onclick="setCurso('BED')">BED</button>
+            <button class="cbtn" onclick="setCurso('UXD')">UXD</button>
+            <button class="cbtn" onclick="setCurso('DATA')">DATA</button>
+            <button class="cbtn" onclick="setCurso('MKT')">MKT</button>
+            <button class="cbtn" onclick="setCurso('PM')">PM</button>
+            <button class="cbtn" onclick="setCurso('QA')">QA</button>
+          </div>
         </div>
-      </div>
 
-      <div class="sb-section" style="flex:1">
-        <div class="sb-label">Posicionamento do texto</div>
-        <div class="sl-list">
+        <div class="sb-section">
+          <div class="sb-label">Modelo Base (PDF)</div>
+          <div class="pdf-list">
+            <div class="pdf-item" onclick="document.getElementById('pdfFileInput').click()">
+              <div class="pdf-icon-wrap">📄</div>
+              <div class="pdf-info">
+                <div class="pdf-name" id="pdfFileNameDisplay">Carregar PDF</div>
+                <div class="pdf-sub" id="pdfFileSubDisplay">Nenhum ficheiro selecionado</div>
+              </div>
+              <div class="pdf-dot" id="pdfDotStatus"></div>
+            </div>
+            <input type="file" id="pdfFileInput" accept="application/pdf" onchange="manipularUploadPDF(event)">
+          </div>
+        </div>
 
-          <div class="sl-card">
-            <div class="sl-header">
-              <span class="sl-field-name">Nome</span>
+        <div class="sb-section">
+          <div class="sb-label">Assinatura Digital</div>
+          <div class="pdf-list">
+            <div class="pdf-item" onclick="document.getElementById('sigFileInput').click()">
+              <div class="pdf-icon-wrap">✒️</div>
+              <div class="pdf-info">
+                <div class="pdf-name" id="sigFileNameDisplay">Carregar Assinatura</div>
+                <div class="pdf-sub" id="sigFileSubDisplay">Ficheiro PNG transparente</div>
+              </div>
+              <div class="pdf-dot" id="sigDotStatus"></div>
+            </div>
+            <input type="file" id="sigFileInput" accept="image/png" onchange="manipularUploadAssinatura(event)">
+          </div>
+          <div class="assinatura-info hidden" id="assinaturaInfoWrap" style="margin-top:8px">
+            <div class="assin-nome" id="txtAssinNome">Nome Diretor</div>
+            <div class="assin-cargo" id="txtAssinCargo">Diretor Geral</div>
+          </div>
+        </div>
+
+        <div class="sb-section">
+          <div class="sb-label">Cor do Texto Primário</div>
+          <div class="color-row">
+            <div class="color-swatch active" style="background:#05070d" onclick="setCorTexto('#05070d', this)"></div>
+            <div class="color-swatch" style="background:#1e293b" onclick="setCorTexto('#1e293b', this)"></div>
+            <div class="color-swatch" style="background:#ffffff;border:1px solid var(--border3)" onclick="setCorTexto('#ffffff', this)"></div>
+            <div class="color-swatch" style="background:#dc2626" onclick="setCorTexto('#dc2626', this)"></div>
+            <div class="color-swatch" style="background:#2563eb" onclick="setCorTexto('#2563eb', this)"></div>
+          </div>
+        </div>
+
+        <div class="sb-section">
+          <div class="sb-label">Ajuste de Elementos (Eixo Y)</div>
+          <div class="sl-list">
+            <div class="sl-card">
+              <div class="sl-header">
+                <div class="sl-field-name">Nome do Aluno</div>
+              </div>
+              <div class="sl-sub">Posição Vertical (Y)</div>
+              <input type="range" id="scaleY_nome" min="50" max="600" value="260" oninput="atualizarConfigPosicao()">
+            </div>
+            <div class="sl-card">
+              <div class="sl-header">
+                <div class="sl-field-name">Metadados / Texto</div>
+              </div>
               <div class="sl-chips">
-                <span class="sl-chip" id="chip_y_nome">105mm</span>
-                <span class="sl-chip" id="chip_s_nome">26pt</span>
+                <span class="sl-chip">CPF</span><span class="sl-chip">Data</span><span class="sl-chip">Empresa</span>
               </div>
-            </div>
-            <div class="sl-sub">Posição vertical</div>
-            <input type="range" id="range_y_nome" min="0" max="210" value="105" oninput="ajusteReal()">
-            <div class="sl-sub" style="margin-top:8px">Tamanho da fonte</div>
-            <input type="range" id="range_s_nome" min="10" max="80" value="26" oninput="ajusteReal()">
-          </div>
-
-          <div class="sl-two-col">
-            <div class="sl-card">
-              <div class="sl-header">
-                <span class="sl-field-name">CPF</span>
-                <span class="sl-chip" id="chip_y_cpf">125mm</span>
-              </div>
-              <div class="sl-sub">Posição</div>
-              <input type="range" id="range_y_cpf" min="0" max="210" value="125" oninput="ajusteReal()">
-              <div class="sl-sub" style="margin-top:7px">Tamanho</div>
-              <input type="range" id="range_s_cpf" min="8" max="40" value="14" oninput="ajusteReal()">
-              <span class="sl-chip" id="chip_s_cpf" style="margin-top:5px;display:inline-block">14pt</span>
+              <div class="sl-sub" style="margin-top:6px">Posição Vertical (Y)</div>
+              <input type="range" id="scaleY_meta" min="50" max="600" value="340" oninput="atualizarConfigPosicao()">
             </div>
             <div class="sl-card">
               <div class="sl-header">
-                <span class="sl-field-name">Data</span>
-                <span class="sl-chip" id="chip_y_data">145mm</span>
+                <div class="sl-field-name">Assinatura Digital</div>
               </div>
-              <div class="sl-sub">Posição</div>
-              <input type="range" id="range_y_data" min="0" max="210" value="145" oninput="ajusteReal()">
-              <div class="sl-sub" style="margin-top:7px">Tamanho</div>
-              <input type="range" id="range_s_data" min="8" max="30" value="12" oninput="ajusteReal()">
-              <span class="sl-chip" id="chip_s_data" style="margin-top:5px;display:inline-block">12pt</span>
+              <div class="sl-sub">Posição Vertical (Y)</div>
+              <input type="range" id="scaleY_assin" min="50" max="600" value="440" oninput="atualizarConfigPosicao()">
             </div>
           </div>
-
-        </div>
-      </div>
-
-    </aside>
-
-    <!-- ─── MAIN ─── -->
-    <main class="main-content">
-
-      <!-- Toolbar -->
-      <div class="main-toolbar">
-        <div class="stat-chips">
-          <div class="stat-chip">
-            <div class="stat-num" id="statAlunos">0</div>
-            <div class="stat-lbl">alunos</div>
-          </div>
-          <div class="stat-chip">
-            <div class="stat-num" id="statPaginas">0</div>
-            <div class="stat-lbl">páginas</div>
-          </div>
-          <div class="stat-status" id="statStatus">Nenhuma planilha carregada</div>
         </div>
 
-        <div class="tb-spacer"></div>
-
-        <div class="nav-group">
-          <button class="nav-btn" id="btnPrev" onclick="navegarAluno(-1)" disabled>←</button>
-          <span class="nav-count" id="navCount">— / —</span>
-          <button class="nav-btn" id="btnNext" onclick="navegarAluno(1)" disabled>→</button>
-        </div>
-
-        <button class="tb-btn tb-green" onclick="document.getElementById('excelInput').click()">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
-          Carregar Excel
-        </button>
-        <input type="file" id="excelInput" accept=".xlsx,.xls,.csv">
-
-        <button class="tb-btn tb-blue" onclick="gerarUnico()" title="Exportar somente o aluno atual">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 15V3m0 12l-4-4m4 4l4-4"/><path d="M2 17l.621 2.485A2 2 0 0 0 4.561 21h14.878a2 2 0 0 0 1.94-1.515L22 17"/></svg>
-          Exportar atual
-        </button>
-      </div>
-
-      <!-- Tabela -->
-      <div id="tabelaWrap" class="tabela-wrap hidden">
-        <div class="tabela-header">
-          <span class="tabela-title" id="tabelaTitle">Alunos carregados</span>
-          <input type="text" id="buscaAluno" class="tabela-search" placeholder="🔍 Buscar aluno..." oninput="filtrarTabela()">
-          <button class="tabela-close" onclick="toggleTabela()">✕</button>
-        </div>
-        <div class="tabela-body" id="tabelaBody"></div>
-      </div>
-
-      <!-- Preview -->
-      <div class="preview-area">
-        <div class="cert-frame-wrapper" id="certFrame">
-
-          <!-- Placeholder -->
-          <div class="placeholder" id="placeholder">
-            <div class="placeholder-icon">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <div class="sb-section">
+          <div class="sb-label">Definições Avançadas</div>
+          <div class="switch-wrap">
+            <div class="switch-info">
+              <div class="switch-lbl">Auditoria</div>
+              <div class="switch-desc">Registrar logs no Firestore</div>
             </div>
-            <div class="placeholder-title">Preview do certificado</div>
-            <div class="placeholder-hint">Carregue o PDF e a planilha para começar</div>
-            <div class="placeholder-steps">
-              <div class="placeholder-step">
-                <div class="step-num">1</div>
-                <span>Selecione o treinamento na sidebar</span>
-              </div>
-              <div class="placeholder-step">
-                <div class="step-num">2</div>
-                <span>Carregue o PDF de frente e verso</span>
-              </div>
-              <div class="placeholder-step">
-                <div class="step-num">3</div>
-                <span>Importe a planilha Excel com os alunos</span>
+            <label class="switch">
+              <input type="checkbox" id="chkAuditoria" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <div class="main-toolbar">
+          <button class="tb-btn tb-blue" onclick="document.getElementById('excelFileInput').click()">📊 Importar Excel</button>
+          <input type="file" id="excelFileInput" accept=".xlsx, .xls" onchange="manipularUploadExcel(event)">
+
+          <button class="tb-btn tb-neutral hidden" id="btnVerTabela" onclick="toggleTabelaView()">👁️ Ver Dados</button>
+
+          <div class="tb-spacer"></div>
+
+          <div class="nav-group hidden" id="navGroupAlunos">
+            <button class="nav-btn" id="btnNavPrev" onclick="navegarAluno(-1)">◀</button>
+            <div class="nav-count" id="txtNavCount">0 / 0</div>
+            <button class="nav-btn" id="btnNavNext" onclick="navegarAluno(1)">▶</button>
+          </div>
+
+          <div class="stat-chips hidden" id="toolbarStats">
+            <div class="stat-chip">
+              <div class="stat-num" id="statTotalAlunos">0</div>
+              <div class="stat-lbl">Importados</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tabela-wrap hidden" id="tabelaDadosWrap">
+          <div class="tabela-header">
+            <div class="tabela-title">Lista de Alunos Importados</div>
+            <input type="text" id="tabelaSearchInput" class="tabela-search" placeholder="Filtrar por nome ou CPF..." oninput="filtrarTabelaAlunos()">
+            <button class="tabela-close" onclick="toggleTabelaView()">Fechar ✕</button>
+          </div>
+          <div class="tabela-body">
+            <table class="tabela" id="tabelaAlunos">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>CPF</th>
+                  <th>Data Conclusão</th>
+                  <th>Empresa</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tabelaAlunosBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="preview-area">
+          <div class="cert-frame-wrapper" id="canvasFrameWrapper">
+            <div class="preview-hud">
+              <div class="preview-hud-badge" id="hudDimensao">PDF: Não Carregado</div>
+              <div class="preview-hud-right">
+                <div class="preview-zoom-btns">
+                  <button class="preview-zoom-btn" onclick="zoomCanvas(0.1)">+</button>
+                  <button class="preview-zoom-btn" onclick="zoomCanvas(-0.1)">-</button>
+                  <button class="preview-zoom-btn" onclick="resetZoomCanvas()">⟲</button>
+                </div>
               </div>
             </div>
-          </div>
 
-          <canvas id="previewCanvas" style="display:none"></canvas>
+            <canvas id="previewCanvas" class="hidden" onclick="toggleZoomClique()"></canvas>
 
-          <!-- HUD flutuante (aparece no hover) -->
-          <div class="preview-hud" id="previewHud">
-            <div class="preview-hud-badge" id="hudCurso">—</div>
-            <div class="preview-hud-right">
-              <div class="preview-zoom-btns">
-                <div class="preview-zoom-btn" onclick="zoomPreview(1.2)" title="Ampliar">+</div>
-                <div class="preview-zoom-btn" onclick="zoomPreview(1/1.2)" title="Reduzir">−</div>
-                <div class="preview-zoom-btn" onclick="resetZoom()" title="Resetar zoom" style="font-size:10px;letter-spacing:-0.5px">1:1</div>
+            <div class="placeholder" id="previewPlaceholder">
+              <div class="placeholder-icon">📐</div>
+              <div class="placeholder-title">Área de Visualização do Certificado</div>
+              <div class="placeholder-hint">Siga os passos na barra lateral e importe uma listagem para renderizar o lote.</div>
+              <div class="placeholder-steps">
+                <div class="placeholder-step"><span class="step-num">1</span> Selecione o código do curso</div>
+                <div class="placeholder-step"><span class="step-num">2</span> Carregue o modelo base PDF</div>
+                <div class="placeholder-step"><span class="step-num">3</span> Importe a planilha Excel com os dados</div>
+              </div>
+            </div>
+
+            <div class="preview-student-bar" id="studentPreviewBar">
+              <div class="psb-left">
+                <div class="psb-name" id="psbNome">Nome do Aluno Exemplo</div>
+                <div class="psb-details" id="psbMeta">CPF: 000.000.000-00 • Conclusão: --/--/----</div>
+              </div>
+              <div class="psb-right">
+                <div class="psb-curso" id="psbCursoBadge">CURSO: FSD</div>
               </div>
             </div>
           </div>
 
-          <!-- Info card do aluno (aparece no hover) -->
-          <div class="preview-student-bar" id="previewStudentBar">
-            <div class="psb-left">
-              <div class="psb-name" id="psbName">—</div>
-              <div class="psb-details" id="psbDetails">—</div>
+          <div class="bottom-row">
+            <div class="progress-block">
+              <div class="prog-header">
+                <div class="prog-label" id="txtProgressoLabel">Aguardando início do processo</div>
+                <div class="prog-pct" id="txtProgressoPct">0%</div>
+              </div>
+              <div class="prog-track"><div class="prog-fill" id="barProgressoFill"></div></div>
+              <div class="prog-sub" id="txtProgressoSub">Nenhuma operação em lote ativa no momento.</div>
             </div>
-            <div class="psb-right">
-              <div class="psb-curso" id="psbCurso">—</div>
-            </div>
-          </div>
-
-        </div>
-
-        <div class="bottom-row">
-          <div class="progress-block">
-            <div class="prog-header">
-              <span class="prog-label">Progresso da geração</span>
-              <span class="prog-pct" id="progPct">0%</span>
-            </div>
-            <div class="prog-track">
-              <div class="prog-fill" id="progFill"></div>
-            </div>
-            <div class="prog-sub" id="progSub">Aguardando geração...</div>
-          </div>
-
-          <div style="display:flex;gap:7px;align-items:center">
-            <button class="tb-btn tb-neutral" onclick="toggleTabela()" title="Ver lista de alunos">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
-              Lista
-            </button>
-            <button class="gen-btn" id="genBtn" onclick="gerarLoteCompleto()">
-              Gerar lote PDF
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            </button>
+            <button class="gen-btn" id="btnGerarLote" disabled onclick="gerarTodosCertificados()">⚡ Emitir Certificados em Lote</button>
           </div>
         </div>
+      </main>
+    </div>
+  </section>
+
+  <div class="modal-overlay hidden" id="colMapModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-title">Mapeamento Inteligente de Colunas</div>
       </div>
-
-    </main>
-  </div>
-
-  <!-- ABA HISTÓRICO -->
-  <div class="app-body" id="abaHistorico" style="display:none">
-    <div style="flex:1;padding:22px;overflow-y:auto">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
-        <div>
-          <div style="font-size:15px;font-weight:800;color:var(--text);font-family:var(--font-display)">Histórico de lotes</div>
-          <div style="font-size:11px;color:var(--text3);margin-top:3px">Auditoria completa de todas as gerações</div>
+      <div class="modal-body" id="colMapBody">
         </div>
-        <div style="display:flex;gap:7px">
-          <button class="tb-btn tb-neutral" onclick="carregarHistorico()">↺ Atualizar</button>
-          <button class="tb-btn tb-neutral" onclick="toggleAba('geracao')">← Voltar</button>
-        </div>
-      </div>
-      <div id="historicoLista" style="display:flex;flex-direction:column;gap:9px">
-        <div style="font-size:12px;color:var(--text3);text-align:center;padding:40px">Conecte-se ao Firebase para ver o histórico</div>
+      <div class="modal-footer">
+        <button class="btn-green" onclick="confirmarMapeamentoColunas()">Confirmar Pareamento</button>
       </div>
     </div>
   </div>
 
-  <!-- ABA DASHBOARD -->
-  <div class="app-body" id="abaDashboard" style="display:none">
-    <div style="flex:1;padding:22px;overflow-y:auto">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
-        <div style="font-size:15px;font-weight:800;color:var(--text);font-family:var(--font-display)">Dashboard analítico</div>
-        <button class="tb-btn tb-neutral" onclick="toggleAba('geracao')">← Voltar</button>
-      </div>
-      <div class="dash-grid">
-        <div class="dash-card"><div class="dash-num" id="dTotal">—</div><div class="dash-lbl">Total certificados</div></div>
-        <div class="dash-card"><div class="dash-num" id="dHoje">—</div><div class="dash-lbl">Gerados hoje</div></div>
-        <div class="dash-card"><div class="dash-num" id="dLotes">—</div><div class="dash-lbl">Lotes processados</div></div>
-        <div class="dash-card"><div class="dash-num" id="dCurso">—</div><div class="dash-lbl">Curso mais usado</div></div>
-      </div>
-      <div>
-        <div style="font-size:10px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;font-family:var(--font-display)">Últimos lotes</div>
-        <div id="dashLotes"></div>
-      </div>
-    </div>
-  </div>
+  <div class="toast-container" id="toastContainer"></div>
 
-</div>
+  <script>
+    // Configurações e Variáveis de Estado da Aplicação
+    let appState = {
+      user: null,
+      role: 'operator',
+      currentTab: 'master',
+      cursoAtivo: 'FSD',
+      corTexto: '#05070d',
+      
+      // Armazenamento de Arquivos/Imagens carregados em runtime
+      pdfDocument: null,     // Objeto instanciado do PDFJS
+      pdfPaginaOriginal: null,// Página 1 extraída
+      pdfViewDimensao: { width: 842, height: 595 }, // Padrão A4 Paisagem em Pontos PostScript
+      
+      assinaturaImgElement: null, // Elemento HTML Image pré-carregado
+      assinaturaConfig: { nome: 'Diretor Geral', cargo: 'Direção Ability Pro' },
 
-<!-- MODAL — Mapeamento de colunas -->
-<div id="modalColMap" class="modal-overlay hidden">
-  <div class="modal-card">
-    <div class="modal-title">Mapeamento de colunas</div>
-    <div class="modal-sub">Confirme ou ajuste a correspondência das colunas da planilha</div>
-    <div id="colMapBody" style="margin:14px 0;display:flex;flex-direction:column;gap:8px"></div>
-    <div style="display:flex;gap:8px;justify-content:flex-end">
-      <button class="tb-btn tb-neutral" onclick="fecharModalColMap(false)">Cancelar</button>
-      <button class="btn-green" onclick="fecharModalColMap(true)">✓ Confirmar mapeamento</button>
-    </div>
-  </div>
-</div>
+      // Dados dos Alunos carregados via Planilha Excel
+      listaAlunos: [],
+      alunoIndexAtivo: 0,
+      
+      // Zoom Controller
+      canvasZoom: 1.0,
+      isZoomClique: false
+    };
 
-<!-- MODAL — Assinaturas -->
-<div id="modalAssinaturas" class="modal-overlay hidden">
-  <div class="modal-card" style="max-width:500px">
-    <div class="modal-title">Assinaturas por curso</div>
-    <div class="modal-sub">Cadastre o instrutor responsável por cada treinamento</div>
-    <div style="margin:14px 0">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-        <div>
-          <div class="field-label" style="font-size:9px;margin-bottom:4px">Curso</div>
-          <select id="assinCursoSelect" class="field" style="padding:10px 12px;font-size:11px">
-            <option value="">Selecione...</option>
-          </select>
-        </div>
-        <div>
-          <div class="field-label" style="font-size:9px;margin-bottom:4px">Nome do instrutor</div>
-          <input type="text" id="assinNomeInput" class="field" style="padding:10px 12px;font-size:11px" placeholder="Ex: Carlos Silva">
-        </div>
-        <div>
-          <div class="field-label" style="font-size:9px;margin-bottom:4px">Cargo</div>
-          <input type="text" id="assinCargoInput" class="field" style="padding:10px 12px;font-size:11px" placeholder="Ex: Eng. Eletricista">
-        </div>
-        <div>
-          <div class="field-label" style="font-size:9px;margin-bottom:4px">Registro profissional</div>
-          <input type="text" id="assinRegistroInput" class="field" style="padding:10px 12px;font-size:11px" placeholder="Ex: CREA 123456">
-        </div>
-      </div>
-      <div>
-        <div class="field-label" style="font-size:9px;margin-bottom:4px">Assinatura (PNG transparente)</div>
-        <div class="pdf-item" onclick="document.getElementById('assinPNGInput').click()" style="cursor:pointer">
-          <div class="pdf-icon-wrap">
-            <svg width="11" height="13" viewBox="0 0 24 28" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v20a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          </div>
-          <div class="pdf-info">
-            <div class="pdf-name" id="assinPNGLabel">Clique para carregar PNG</div>
-          </div>
-        </div>
-        <input type="file" id="assinPNGInput" accept="image/png,image/jpeg" onchange="carregarAssinaturaImg(this)">
-      </div>
-      <div style="display:flex;gap:8px;margin-top:10px">
-        <button class="btn-green" onclick="salvarAssinatura()" style="flex:1">+ Salvar instrutor</button>
-      </div>
-    </div>
-    <div style="border-top:1px solid var(--border);padding-top:12px">
-      <div style="font-size:9px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-family:var(--font-display)">Instrutores cadastrados</div>
-      <div id="listaAssinaturas" style="display:flex;flex-direction:column;gap:6px;max-height:160px;overflow-y:auto"></div>
-    </div>
-    <div style="display:flex;justify-content:flex-end;margin-top:12px">
-      <button class="tb-btn tb-neutral" onclick="fecharAssinaturas()">Fechar</button>
-    </div>
-  </div>
-</div>
+    // Dicionário de Sinónimos para o pareamento heurístico/distância Levenshtein
+    const SINONIMOS = {
+      nome:     ['nome', 'aluno', 'estudante', 'nome completo', 'participante', 'client', 'nome_aluno'],
+      cpf:      ['cpf', 'documento', 'id', 'nif', 'cpf_aluno', 'identificação'],
+      data:     ['data', 'conclusao', 'data conclusao', 'fim', 'concluído', 'data_fim', 'periodo'],
+      empresa:  ['empresa', 'corporacao', 'organizacao', 'parceiro', 'empresa_nome', 'business'],
+      email:    ['email', 'e-mail', 'contato', 'mail'],
+      telefone: ['telefone', 'whatsapp', 'celular', 'tel', 'wpp']
+    };
 
-<div id="toastContainer"></div>
+    // Executado ao carregar o DOM
+    window.addEventListener('DOMContentLoaded', () => {
+      configurarMonitorizacaoAuth();
+    });
 
-<script>
-/* ══════════════════════════════════════════════════
-   ABILITY PRO v4.0 — app.js (sem QR Code)
-   ══════════════════════════════════════════════════ */
+    /* ── AUTENTICAÇÃO E CONFIGURAÇÃO FIREBASE ── */
+    function showToast(title, msg, type='success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.innerHTML = `<div><div class="toast-title">${title}</div><div>${msg}</div></div>`;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 4500);
+    }
 
-pdfjsLib.GlobalWorkerOptions.workerSrc =
-  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
-const { jsPDF } = window.jspdf;
-
-/* ── Estado global ── */
-let imgFrente = null, imgVerso = null;
-let dadosExcel = [], alunoAtual = 0, slotAtivo = 'NR10';
-let gerando = false, corTexto = '#000000';
-let modoFirebase = false, tabelaVisivel = false;
-let dadosFiltrados = [], mapeamentoColunas = {};
-let assinaturaImg = null, dbAssinaturas = {};
-let abaAtiva = 'geracao', usuarioLogado = null;
-let previewZoom = 1;
-
-const CURSOS = ['NR10', 'NR10 SEP', 'NR06', 'NR20', 'NR35', 'SGA', 'DIRECAO', 'OUTROS'];
-
-const SINONIMOS = {
-  nome:    ['nome','name','aluno','participante','funcionario','colaborador','trabalhador','empregado','servidor','estudante'],
-  cpf:     ['cpf','documento','doc','cpf/cnpj','identificacao','id'],
-  data:    ['data','conclusao','termino','date','dt','emissao','realizacao','fim','encerramento'],
-  empresa: ['empresa','company','organizacao','contratante','empregador','razao'],
-  email:   ['email','e-mail','mail','correio','contato'],
-  telefone:['telefone','tel','celular','whatsapp','fone'],
-};
-
-let dbEquipe = JSON.parse(localStorage.getItem('ability_v9_users') || 'null')
-  || [{ user: 'Admin', pass: '2729', role: 'admin' }];
-
-/* ── Utils ── */
-function toast(msg, tipo = 'success', duracao = 3500) {
-  const wrap = document.getElementById('toastContainer');
-  const el = document.createElement('div');
-  el.className = `toast ${tipo}`;
-  el.innerHTML = `<div class="toast-icon"></div><span>${msg}</span>`;
-  wrap.appendChild(el);
-  setTimeout(() => {
-    el.style.opacity = '0'; el.style.transform = 'translateX(12px)';
-    el.style.transition = 'opacity 0.25s, transform 0.25s';
-    setTimeout(() => el.remove(), 280);
-  }, duracao);
-}
-
-function formatarData(v) {
-  if (!v) return '';
-  if (v instanceof Date) return v.toLocaleDateString('pt-BR');
-  if (typeof v === 'number') {
-    const d = new Date(Math.round((v - 25569) * 86400 * 1000));
-    return d.toLocaleDateString('pt-BR');
-  }
-  const s = String(v).trim();
-  if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
-    const [ano, mes, dia] = s.split('-');
-    return `${dia}/${mes}/${ano}`;
-  }
-  return s;
-}
-
-function hexParaRGB(hex) {
-  return { r: parseInt(hex.slice(1,3),16), g: parseInt(hex.slice(3,5),16), b: parseInt(hex.slice(5,7),16) };
-}
-
-function levenshtein(a, b) {
-  const m = a.length, n = b.length;
-  const dp = Array.from({length:m+1},(_,i) => Array.from({length:n+1},(_,j) => i===0?j:j===0?i:0));
-  for (let i=1;i<=m;i++) for (let j=1;j<=n;j++)
-    dp[i][j] = a[i-1]===b[j-1] ? dp[i-1][j-1] : 1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
-  return dp[m][n];
-}
-
-function normalizar(s) {
-  return String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
-}
-
-function buscarColuna(aluno, campo, ...extras) {
-  if (mapeamentoColunas[campo]) {
-    const val = aluno[mapeamentoColunas[campo]];
-    if (val !== undefined && val !== null && String(val).trim() !== '') return String(val).trim();
-  }
-  const termos = [...(SINONIMOS[campo]||[]), ...extras];
-  const chaves = Object.keys(aluno);
-  for (const termo of termos) {
-    const t = normalizar(termo);
-    const found = chaves.find(c => normalizar(c).includes(t));
-    if (found && aluno[found] !== undefined && aluno[found] !== null && String(aluno[found]).trim() !== '')
-      return String(aluno[found]).trim();
-  }
-  return '';
-}
-
-function getConfig() {
-  return {
-    yn: +document.getElementById('range_y_nome').value,
-    sn: +document.getElementById('range_s_nome').value,
-    yc: +document.getElementById('range_y_cpf').value,
-    sc: +document.getElementById('range_s_cpf').value,
-    yd: +document.getElementById('range_y_data').value,
-    sd: +document.getElementById('range_s_data').value,
-    cor: corTexto,
-  };
-}
-
-/* ── Mapeamento de colunas ── */
-function detectarMapeamento(dados) {
-  if (!dados || dados.length === 0) return {};
-  const colunas = Object.keys(dados[0]);
-  const resultado = {};
-  for (const [campo, sinonimos] of Object.entries(SINONIMOS)) {
-    let melhor = null, melhorScore = Infinity;
-    for (const coluna of colunas) {
-      const cn = normalizar(coluna);
-      for (const sin of sinonimos) {
-        const dist = levenshtein(cn, normalizar(sin));
-        const score = dist - (cn.includes(normalizar(sin)) ? 5 : 0);
-        if (score < melhorScore) { melhorScore = score; melhor = coluna; }
+    function setLoginTab(tab) {
+      appState.currentTab = tab;
+      document.getElementById('btnTabMaster').classList.toggle('active', tab === 'master');
+      document.getElementById('btnTabTeam').classList.toggle('active', tab === 'team');
+      document.getElementById('wrapEmail').style.display = tab === 'master' ? 'flex' : 'none';
+      document.getElementById('wrapTeamUser').style.style = tab === 'team' ? 'flex' : 'none';
+      
+      if(tab === 'team') {
+        carregarListaMembrosEquipaLogin();
       }
     }
-    if (melhorScore <= 4 && melhor) resultado[campo] = melhor;
-  }
-  return resultado;
-}
 
-let _resolveColMap = null;
-function mostrarModalColMap(colunas, sugestoes) {
-  return new Promise(resolve => {
-    _resolveColMap = resolve;
-    const campos = ['nome','cpf','data','empresa','email','telefone'];
-    const labels = { nome:'Nome do aluno', cpf:'CPF', data:'Data de conclusão', empresa:'Empresa', email:'E-mail', telefone:'Telefone/WhatsApp' };
-    const body = document.getElementById('colMapBody');
-    body.innerHTML = campos.map(campo => {
-      const sugestao = sugestoes[campo] || '';
-      return `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:center">
-        <div style="font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px">${labels[campo]}</div>
-        <select id="map_${campo}" class="field" style="padding:8px 10px;font-size:11px">
-          <option value="">— Ignorar —</option>
-          ${colunas.map(c => `<option value="${c}" ${c===sugestao?'selected':''}>${c}</option>`).join('')}
-        </select>
+    function configurarMonitorizacaoAuth() {
+      setTimeout(() => {
+        if (!window.__FB) return;
+        window.__FB.onAuthStateChanged(window.__FB.auth, async (user) => {
+          if (user) {
+            appState.user = user;
+            // Verificar se o login veio de uma conta Master (Diretor) ou Operador
+            const docRef = window.__FB.doc(window.__FB.db, "usuarios", user.uid);
+            const docSnap = await window.__FB.getDoc(docRef);
+            
+            if (docSnap.exists() && docSnap.data().role === 'master') {
+              appState.role = 'master';
+              document.getElementById('userRoleBadge').textContent = 'Diretor / Master';
+              document.getElementById('btnToggleAdmin').classList.remove('hidden');
+              carregarListaMembrosPainelAdmin();
+            } else {
+              appState.role = 'operator';
+              document.getElementById('userRoleBadge').textContent = 'Operador Equipa';
+              document.getElementById('btnToggleAdmin').classList.add('hidden');
+            }
+            
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('mainInterface').classList.remove('hidden');
+            showToast("Sessão Ativa", `Bem-vindo ao ecossistema Ability Pro.`);
+          } else {
+            appState.user = null;
+            document.getElementById('loginSection').classList.remove('hidden');
+            document.getElementById('mainInterface').classList.add('hidden');
+          }
+        });
+      }, 1000);
+    }
+
+    async function carregarListaMembrosEquipaLogin() {
+      const select = document.getElementById('loginTeamSelect');
+      select.innerHTML = '<option value="">Selecione o seu utilizador...</option>';
+      try {
+        if (!window.__FB) return;
+        const q = window.__FB.query(window.__FB.collection(window.__FB.db, "equipe"), window.__FB.orderBy("nome"));
+        const snapshot = await window.__FB.getDocs(q);
+        snapshot.forEach(doc => {
+          const d = doc.data();
+          select.innerHTML += `<br><option value="${d.email}">${d.nome}</option>`;
+        });
+      } catch(e) {
+        console.error(e);
+      }
+    }
+
+    async function executarLogin() {
+      const password = document.getElementById('loginPassword').value;
+      if(!password) return showToast("Erro", "Introduza a palavra-passe.", "error");
+
+      try {
+        let email = "";
+        if(appState.currentTab === 'master') {
+          email = document.getElementById('loginEmail').value;
+        } else {
+          email = document.getElementById('loginTeamSelect').value;
+        }
+        if(!email) return showToast("Erro", "Selecione ou insira o utilizador correto.", "error");
+
+        await window.__FB.signInWithEmailAndPassword(window.__FB.auth, email, password);
+      } catch(e) {
+        showToast("Falha na Autenticação", "Credenciais incorretas ou utilizador inexistente.", "error");
+      }
+    }
+
+    async function executarLogout() {
+      if(window.__FB) {
+        await window.__FB.signOut(window.__FB.auth);
+        window.location.reload();
+      }
+    }
+
+    /* ── PAINEL ADMINISTRATIVO (DIRETOR) ── */
+    function toggleAdminPanel() {
+      document.getElementById('adminPanel').classList.toggle('hidden');
+    }
+
+    async function carregarListaMembrosPainelAdmin() {
+      const grid = document.getElementById('teamGrid');
+      grid.innerHTML = '';
+      try {
+        const q = window.__FB.query(window.__FB.collection(window.__FB.db, "equipe"), window.__FB.orderBy("created", "desc"));
+        const snapshot = await window.__FB.getDocs(q);
+        snapshot.forEach(doc => {
+          const d = doc.data();
+          grid.innerHTML += `<div class="team-card">
+            <div class="team-card-name">${d.nome}</div>
+            <div class="team-card-pass">Senha: ${d.senhaExibicao}</div>
+            <button class="team-card-remove" onclick="removerMembroEquipa('${doc.id}')">Excluir</button>
+          </div>`;
+        });
+      } catch(e) { console.error(e); }
+    }
+
+    async function adicionarMembroEquipa() {
+      const nome = document.getElementById('newTeamName').value.trim();
+      const senha = document.getElementById('newTeamPass').value.trim();
+      if(!nome || !senha) return showToast("Aviso", "Preencha o nome e a senha simples.", "error");
+
+      try {
+        // Criar um email sintético para autenticação interna da equipa secundária
+        const emailSintetico = `equipe_${nome.toLowerCase().replace(/\s+/g, '')}@ability.internal`;
+        
+        // Salvar metadados no Firestore para sincronização
+        await window.__FB.addDoc(window.__FB.collection(window.__FB.db, "equipe"), {
+          nome,
+          email: emailSintetico,
+          senhaExibicao: senha,
+          created: window.__FB.serverTimestamp()
+        });
+
+        showToast("Sucesso", `Operador ${nome} registado com sucesso.`);
+        document.getElementById('newTeamName').value = '';
+        document.getElementById('newTeamPass').value = '';
+        carregarListaMembrosPainelAdmin();
+      } catch(e) {
+        showToast("Erro", "Não foi possível adicionar o membro.", "error");
+      }
+    }
+
+    /* ── CONFIGURAÇÕES DO CERTIFICADO ── */
+    function setCurso(cod) {
+      appState.cursoAtivo = cod;
+      document.querySelectorAll('.course-grid .cbtn').forEach(b => {
+        b.classList.toggle('active', b.textContent === cod);
+      });
+      document.getElementById('psbCursoBadge').textContent = `CURSO: ${cod}`;
+      re-renderizarPreviewAluno();
+    }
+
+    function setCorTexto(hex, element) {
+      appState.corTexto = hex;
+      document.querySelectorAll('.color-row .color-swatch').forEach(s => s.classList.remove('active'));
+      element.classList.add('active');
+      re-renderizarPreviewAluno();
+    }
+
+    function atualizarConfigPosicao() {
+      re-renderizarPreviewAluno();
+    }
+
+    /* ── ALGORITMO DE DISTÂNCIA LEVENSHTEIN E INTELIGÊNCIA PLANILHA ── */
+    function levenshtein(a, b) {
+      const tmp = [];
+      let i, j, alen = a.length, blen = b.length;
+      if (alen === 0) return blen;
+      if (blen === 0) return alen;
+      for (i = 0; i <= alen; i++) tmp[i] = [i];
+      for (j = 0; j <= blen; j++) tmp[0][j] = j;
+      for (i = 1; i <= alen; i++) {
+        for (j = 1; j <= blen; j++) {
+          tmp[i][j] = Math.min(
+            tmp[i - 1][j] + 1,
+            tmp[i][j - 1] + 1,
+            tmp[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)
+          );
+        }
+      }
+      return tmp[alen][blen];
+    }
+
+    function normalizar(str) {
+      return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+    }
+
+    function analisarHeuristicaColunas(colunas) {
+      let resultado = {};
+      for (const [campo, sinonimos] of Object.entries(SINONIMOS)) {
+        let melhor = null, melhorScore = Infinity;
+        for (const coluna of colunas) {
+          const cn = normalizar(coluna);
+          for (const sin of sinonimos) {
+            const dist = levenshtein(cn, normalizar(sin));
+            const score = dist - (cn.includes(normalizar(sin)) ? 5 : 0);
+            if (score < melhorScore) { melhorScore = score; melhor = coluna; }
+          }
+        }
+        if (melhorScore <= 4 && melhor) resultado[campo] = melhor;
+      }
+      return resultado;
+    }
+
+    let _resolveColMap = null;
+    function mostrarModalColMap(colunas, sugestoes) {
+      return new Promise(resolve => {
+        _resolveColMap = resolve;
+        const campos = ['nome','cpf','data','empresa','email','telefone'];
+        const labels = { nome:'Nome do aluno', cpf:'CPF', data:'Data de conclusão', empresa:'Empresa', email:'E-mail', telefone:'Telefone/WhatsApp' };
+        const body = document.getElementById('colMapBody');
+        body.innerHTML = campos.map(campo => {
+          const sugestao = sugestoes[campo] || '';
+          return `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:center">
+            <div style="font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px">${labels[campo]}</div>
+            <select id="map_${campo}" class="field">
+              <option value="">-- Ignorar Campo --</option>
+              ${colunas.map(c => `<option value="${c}" ${c === sugestao ? 'selected' : ''}>${c}</option>`).join('')}
+            </select>
+          </div>`;
+        }).join('');
+        document.getElementById('colMapModal').classList.remove('hidden');
+      });
+    }
+
+    function confirmarMapeamentoColunas() {
+      const campos = ['nome','cpf','data','empresa','email','telefone'];
+      let mapa = {};
+      campos.forEach(c => { mapa[c] = document.getElementById(`map_${c}`).value; });
+      document.getElementById('colMapModal').classList.add('hidden');
+      if(_resolveColMap) _resolveColMap(mapa);
+    }
+
+    /* ── UPLOAD E LEITURA DE FICHEIROS (PDF, IMAGE, EXCEL) ── */
+    async function manipularUploadPDF(e) {
+      const file = e.target.files[0];
+      if(!file) return;
+      document.getElementById('pdfFileNameDisplay').textContent = file.name;
+      
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdfjsLib = window['pdfjs-dist/build/pdf'];
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+        
+        appState.pdfDocument = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+        appState.pdfPaginaOriginal = await appState.pdfDocument.getPage(1);
+        
+        const viewport = appState.pdfPaginaOriginal.getViewport({scale: 1.0});
+        appState.pdfViewDimensao.width = viewport.width;
+        appState.pdfViewDimensao.height = viewport.height;
+        
+        document.getElementById('hudDimensao').textContent = `PDF: Pag 1 (${Math.round(viewport.width)}x${Math.round(viewport.height)}px)`;
+        document.getElementById('pdfDotStatus').className = "pdf-dot loaded";
+        document.getElementById('pdfFileSubDisplay').textContent = "Renderizado no Canvas";
+        
+        re-renderizarPreviewAluno();
+      } catch(err) {
+        showToast("Erro no PDF", "Não foi possível processar o modelo vetorial.", "error");
+      }
+    }
+
+    function manipularUploadAssinatura(e) {
+      const file = e.target.files[0];
+      if(!file) return;
+      document.getElementById('sigFileNameDisplay').textContent = file.name;
+      
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const img = new Image();
+        img.onload = function() {
+          appState.assinaturaImgElement = img;
+          document.getElementById('sigDotStatus').className = "pdf-dot loaded";
+          document.getElementById('sigFileSubDisplay').textContent = "Pronto para fusão";
+          re-renderizarPreviewAluno();
+        };
+        img.src = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function manipularUploadExcel(e) {
+      const file = e.target.files[0];
+      if(!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = async function(evt) {
+        const data = new Uint8Array(evt.target.result);
+        const workbook = XLSX.read(data, {type: 'array', cellDates: true});
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        
+        // Converter em JSON de Matriz bruta para analisar o cabeçalho
+        const matrizBruta = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+        if(matrizBruta.length < 2) return showToast("Planilha Vazia", "Insira dados válidos.", "error");
+        
+        const colunasCabeçalho = matrizBruta[0];
+        const sugestoes = analisarHeuristicaColunas(colunasCabeçalho);
+        
+        // Aguardar decisão do mapa final do utilizador via modal
+        const mapaFinal = await mostrarModalColMap(colunasCabeçalho, sugestoes);
+        
+        // Processar linhas com base no mapeamento
+        const jsonDados = XLSX.utils.sheet_to_json(worksheet);
+        appState.listaAlunos = jsonDados.map(row => {
+          return {
+            nome:     row[mapaFinal.nome] || '',
+            cpf:      row[mapaFinal.cpf] || '',
+            data:     formatarDataExcel(row[mapaFinal.data]),
+            empresa:  row[mapaFinal.empresa] || '',
+            email:    row[mapaFinal.email] || '',
+            telefone: row[mapaFinal.telefone] || ''
+          };
+        }).filter(a => a.nome);
+
+        if(appState.listaAlunos.length > 0) {
+          appState.alunoIndexAtivo = 0;
+          atualizarInterfaceAposImportacao();
+          re-renderizarPreviewAluno();
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function formatarDataExcel(val) {
+      if(!val) return '';
+      if(val instanceof Date) {
+        return val.toLocaleDateString('pt-PT');
+      }
+      return String(val);
+    }
+
+    function atualizarInterfaceAposImportacao() {
+      document.getElementById('toolbarStats').classList.remove('hidden');
+      document.getElementById('statTotalAlunos').textContent = appState.listaAlunos.length;
+      document.getElementById('navGroupAlunos').classList.remove('hidden');
+      document.getElementById('btnVerTabela').classList.remove('hidden');
+      document.getElementById('btnGerarLote').removeAttribute('disabled');
+      
+      // Montar tabela DOM
+      const tbody = document.getElementById('tabelaAlunosBody');
+      tbody.innerHTML = appState.listaAlunos.map((aluno, idx) => `
+        <tr id="row_aluno_${idx}" onclick="selecionarAlunoPorTabela(${idx})">
+          <td><strong>${aluno.nome}</strong></td>
+          <td>${aluno.cpf || '---'}</td>
+          <td>${aluno.data || '---'}</td>
+          <td>${aluno.empresa || '---'}</td>
+          <td><button class="tabela-btn-gen" onclick="event.stopPropagation(); emitirCertificadoIndividual(${idx})">Emitir</button></td>
+        </tr>
+      `).join('');
+    }
+
+    /* ── MOTOR DE RENDERIZAÇÃO CANVAS (PREVIEW) ── */
+    async function re-renderizarPreviewAluno() {
+      const canvas = document.getElementById('previewCanvas');
+      const placeholder = document.getElementById('previewPlaceholder');
+      const wrapper = document.getElementById('canvasFrameWrapper');
+      
+      if(!appState.pdfPaginaOriginal) {
+        canvas.classList.add('hidden');
+        placeholder.classList.remove('hidden');
+        wrapper.classList.remove('loaded');
+        return;
+      }
+
+      canvas.classList.remove('hidden');
+      placeholder.classList.add('hidden');
+      wrapper.classList.add('loaded');
+
+      const ctx = canvas.getContext('2d');
+      
+      // Ajustar escala do render interno
+      const dpr = window.devicePixelRatio || 1;
+      const scale = 1.5; // Alta definição de visualização interna
+      const viewport = appState.pdfPaginaOriginal.getViewport({ scale });
+      
+      canvas.width = viewport.width * dpr;
+      canvas.height = viewport.height * dpr;
+      canvas.style.width = `${viewport.width}px`;
+      canvas.style.height = `${viewport.height}px`;
+      ctx.scale(dpr, dpr);
+
+      // 1. Renderizar a Camada de Fundo Original do PDF
+      const renderContext = {
+        canvasContext: ctx,
+        viewport: viewport,
+        transform: [1, 0, 0, 1, 0, 0]
+      };
+      await appState.pdfPaginaOriginal.render(renderContext).promise;
+
+      // Pegar os dados do aluno ativo ou simular se não houver planilha
+      let aluno = { nome: 'NOME COMPLETO DO ALUNO', cpf: '000.000.000-00', data: '22/05/2026', empresa: 'Empresa Exemplo S.A.' };
+      if(appState.listaAlunos.length > 0) {
+        aluno = appState.listaAlunos[appState.alunoIndexAtivo];
+        
+        // Atualizar floating student bar
+        document.getElementById('psbNome').textContent = aluno.nome;
+        document.getElementById('psbMeta').textContent = `CPF: ${aluno.cpf || '---'} • Conclusão: ${aluno.data || '---'} • ${aluno.empresa || 'Individual'}`;
+        document.getElementById('txtNavCount').textContent = `${appState.alunoIndexAtivo + 1} / ${appState.listaAlunos.length}`;
+        
+        // Marcar linha ativa na tabela
+        document.querySelectorAll('#tabelaAlunosBody tr').forEach(r => r.classList.remove('row-ativo'));
+        const rowAtiva = document.getElementById(`row_aluno_${appState.alunoIndexAtivo}`);
+        if(rowAtiva) rowAtiva.classList.add('row-ativo');
+      }
+
+      // Proporção matemática entre o tamanho PostScript original e a escala do viewport atual
+      const f = scale;
+
+      // 2.
